@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-
+import 'share_meal_screen.dart'; // Import the ShareMealScreen file
 
 class ProfileScreen extends StatelessWidget {
   final String userId;
@@ -70,10 +70,20 @@ class ProfileScreen extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 20),
-                
 
                 // Additional user information widgets can be added here
                 // For example, you can fetch and display the user's name, email, etc.
+
+                // Button to navigate to ShareMealScreen
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ShareMealScreen()),
+                    );
+                  },
+                  child: Text('Share a Meal'),
+                ),
               ],
             ),
           ),

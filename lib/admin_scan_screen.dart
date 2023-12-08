@@ -13,7 +13,7 @@ class _AdminScanScreenState extends State<AdminScanScreen> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   late QRViewController controller;
   bool scanned = false;
-  String userId ='';
+  String userId = '';
 
   @override
   void dispose() {
@@ -53,8 +53,6 @@ class _AdminScanScreenState extends State<AdminScanScreen> {
         scanned = true;
         // Process the scanned QR code data
         userId = scanData.code ?? ''; // Use an empty string as a default if it's null
-;
-        // You can add more logic here to validate and use the user ID
       });
     });
   }
@@ -64,15 +62,18 @@ class _AdminScanScreenState extends State<AdminScanScreen> {
       // Determine the meal type based on the current time
       DateTime now = DateTime.now();
       String mealType = 'Breakfast';
-      if (now.hour >= 12 && now.hour < 18) {
+
+      if (now.hour >= 12 && now.hour < 15) {
         mealType = 'Lunch';
+      } else if (now.hour >= 15 && now.hour < 18) {
+        mealType = 'Snack'; // Add "Snack" for the evening time
       } else if (now.hour >= 18) {
         mealType = 'Dinner';
       }
 
       // Create an attendance record
       Map<String, dynamic> attendanceData = {
-        'userId': userId, // Replace with the actual user ID
+        'userId': userId,
         'date': Timestamp.now(),
         'mealType': mealType,
         // Add other fields as needed
