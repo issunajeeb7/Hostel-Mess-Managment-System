@@ -58,6 +58,16 @@ class _MyVouchersScreenState extends State<MyVouchersScreen> {
     }
   }
 
+  Future<void> _deleteVoucher(String voucherId) async {
+    try {
+      await _firestore.collection('mealvouchers').doc(voucherId).delete();
+      print("Voucher deleted successfully");
+    } catch (e) {
+      print("Error deleting voucher: $e");
+      // Handle error as needed
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -79,12 +89,6 @@ class _MyVouchersScreenState extends State<MyVouchersScreen> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // // Display current user ID for debugging
-              // Text("Current User ID: $currentUserId"),
-              // // Display user data on the screen
-              // Text("Hostel ID: $hostelID"),
-              // // Add other user data fields as needed
-
               StreamBuilder<QuerySnapshot>(
                 stream: _firestore
                     .collection('mealvouchers')
@@ -106,12 +110,12 @@ class _MyVouchersScreenState extends State<MyVouchersScreen> {
                       itemCount: snapshot.data!.docs.length,
                       itemBuilder: (context, index) {
                         var voucher = snapshot.data!.docs[index].data() as Map<String, dynamic>;
-                        return ListTile(
-                          title: Text('${voucher['mealType']} on ${voucher['date']}'),
-                          subtitle: Text('Hostel ID: $hostelID'),
-                          trailing: voucher['isClaimed']
-                              ? const Icon(Icons.check, color: Colors.green)
-                              : const Icon(Icons.close, color: Colors.red),
+                        return VoucherListItem(
+                          voucher: voucher,
+                          hostelID: hostelID,
+                          onDelete: () {
+                            _deleteVoucher(snapshot.data!.docs[index].id);
+                          },
                         );
                       },
                     ),
@@ -121,6 +125,43 @@ class _MyVouchersScreenState extends State<MyVouchersScreen> {
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+class VoucherListItem extends StatelessWidget {
+  final Map<String, dynamic> voucher;
+  final String hostelID;
+  final VoidCallback onDelete;
+
+  const VoucherListItem({
+    Key? key,
+    required this.voucher,
+    required this.hostelID,
+    required this.onDelete,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: Text('${voucher['mealType']} on ${voucher['date']}'),
+      subtitle: Text('Hostel ID: $hostelID'),
+      trailing: PopupMenuButton<String>(
+        onSelected: (String choice) {
+          if (choice == 'delete') {
+            onDelete();
+          }
+        },
+        itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+          const PopupMenuItem<String>(
+            value: 'delete',
+            child: ListTile(
+              leading: Icon(Icons.delete),
+              title: Text('Delete'),
+            ),
+          ),
+        ],
       ),
     );
   }
