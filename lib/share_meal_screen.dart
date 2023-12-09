@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart'; // For date formatting
+import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'generated_vouchers_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ShareMealScreen extends StatefulWidget {
   @override
@@ -22,18 +23,27 @@ class _ShareMealScreenState extends State<ShareMealScreen> {
           title: const Text('Confirm Voucher Generation'),
           content: Text(
               'Are you sure you want to generate a meal voucher for ${DateFormat('yyyy-MM-dd').format(selectedDate)} - $selectedMealType?'),
+              backgroundColor: const Color(0xFFFBC32C),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(false); // User clicked No
               },
-              child: const Text('No'),
+              child: const Text(
+                'No',
+                style: TextStyle(
+                  color: Color(0xFFFFF9EA )
+                ),
+                ),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(true); // User clicked Yes
               },
-              child: const Text('Yes'),
+              child: const Text(
+                'Yes',
+                style: TextStyle(color: Color(0xFFFFF9EA )),
+                ),
             ),
           ],
         );
@@ -41,7 +51,6 @@ class _ShareMealScreenState extends State<ShareMealScreen> {
     );
 
     if (confirmed == true) {
-      // User confirmed, proceed with meal voucher generation
       await _firestore.collection('mealvouchers').add({
         'hostellerId': FirebaseAuth.instance.currentUser!.uid,
         'date': DateFormat('yyyy-MM-dd').format(selectedDate),
@@ -49,7 +58,6 @@ class _ShareMealScreenState extends State<ShareMealScreen> {
         'isClaimed': false,
       });
 
-      // Show a success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -61,65 +69,148 @@ class _ShareMealScreenState extends State<ShareMealScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Share a Meal'),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: IconThemeData(color: theme.primaryColor),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // DatePicker to select the date
-            ElevatedButton(
-              onPressed: () async {
-                final DateTime? pickedDate = await showDatePicker(
-                  context: context,
-                  initialDate: selectedDate,
-                  firstDate: DateTime.now(),
-                  lastDate: DateTime.now().add(const Duration(days: 365)),
-                );
-                if (pickedDate != null && pickedDate != selectedDate) {
-                  setState(() {
-                    selectedDate = pickedDate;
-                  });
-                }
-              },
-              child: Text(
-                  'Select Date: ${DateFormat('yyyy-MM-dd').format(selectedDate)}'),
-            ),
-            const SizedBox(height: 16.0),
-
-            // Scrollable Row with Meal Selection
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  mealTypeButton('Breakfast', Icons.free_breakfast),
-                  mealTypeButton('Lunch', Icons.restaurant),
-                  mealTypeButton('Snack', Icons.local_dining),
-                  mealTypeButton('Dinner', Icons.restaurant_menu),
-                ],
+            Text(
+              'Date:',
+              style: GoogleFonts.nunitoSans(
+                // fontFamily: 'Nunito Sans',
+                fontSize: 25,
+                fontWeight: FontWeight.w600,
               ),
             ),
-
-            const SizedBox(height: 16.0),
-
-            // Button to share the meal
+            SizedBox(height: 8.0),
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF9EA),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    spreadRadius: 1,
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: ListTile(
+                title: Text(
+                  DateFormat('dd/MM/yyyy').format(selectedDate),
+                  style:  GoogleFonts.nunitoSans(
+                    // fontFamily: 'Nunito Sans',
+                    fontSize: 20,
+                  ),
+                ),
+                trailing: Icon(
+                  Icons.calendar_today,
+                  color: theme.primaryColor,
+                ),
+                onTap: () async {
+                  final DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: selectedDate,
+                    firstDate: DateTime.now(),
+                    lastDate: DateTime.now().add(const Duration(days: 365)),
+                  );
+                  if (pickedDate != null && pickedDate != selectedDate) {
+                    setState(() {
+                      selectedDate = pickedDate;
+                    });
+                  }
+                },
+              ),
+            ),
+            SizedBox(height: 16.0),
+            Text(
+              'Meals:',
+              style: GoogleFonts.nunitoSans(
+                
+                fontSize: 25,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            SizedBox(height: 8.0),
+            GridView.count(
+              crossAxisCount: 2,
+              shrinkWrap: true,
+              childAspectRatio: 1.0,
+              children: <Widget>[
+                mealTypeCard('Breakfast', 'assets/breakfast.png'),
+                mealTypeCard('Snack', 'assets/snack.png'),
+                mealTypeCard('Lunch', 'assets/lunch.png'),
+                mealTypeCard('Dinner', 'assets/dinner.png'),
+              ],
+            ),
+            SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: shareMeal,
-              child: const Text('Share Meal'),
+              style: ElevatedButton.styleFrom(
+                primary: Color(0xFFFBC32C),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+                shadowColor: Colors.black.withOpacity(1.0),
+                elevation: 4,
+                minimumSize: Size(350, 55),
+              ),
+              child: Container(
+                height: 55,
+                width: 350,
+                child: Center(
+                  child: Text(
+                    'Share The Meal',
+                    style: GoogleFonts.nunitoSans(
+                      fontSize: 25,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+              ),
             ),
-
-            // Button to view shared meals
+            SizedBox(height: 8.0),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => MyVouchersScreen()),
-                ); // Navigate to a screen that shows the hosteller's shared meals
+                );
               },
-              child: const Text('View My Shared Meals'),
+              style: ElevatedButton.styleFrom(
+                primary: Color(0xFFFBC32C),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+                shadowColor: Colors.black.withOpacity(1.0),
+                elevation: 4,
+                minimumSize: Size(350, 55),
+              ),
+              child: Container(
+                height: 55,
+                width: 350,
+                child: Center(
+                  child: Text(
+                    'View My Vouchers',
+                    style: GoogleFonts.nunitoSans(
+                      fontSize: 25,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -127,21 +218,57 @@ class _ShareMealScreenState extends State<ShareMealScreen> {
     );
   }
 
-  Widget mealTypeButton(String mealType, IconData icon) {
-    return ElevatedButton.icon(
-      onPressed: () {
-        setState(() {
-          selectedMealType = mealType;
-        });
-      },
-      style: ElevatedButton.styleFrom(
-        primary: mealType == selectedMealType ? Colors.blue : null,
+  Widget mealTypeCard(String mealType, String imagePath) {
+    bool isSelected = selectedMealType == mealType;
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Card(
+        elevation: 4,
+        shadowColor: Colors.black.withOpacity(0.2),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            color: isSelected
+                ? Color.fromARGB(255, 251, 196, 44)
+                : Color(0xFFFFF9EA),
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                spreadRadius: 1,
+                blurRadius: 5,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: InkWell(
+            onTap: () {
+              setState(() {
+                selectedMealType = mealType;
+              });
+            },
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Image.asset(imagePath, height: 90),
+                ),
+                Text(
+                  mealType,
+                  style: GoogleFonts.nunitoSans(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w400,
+                    color: isSelected ? Colors.white : Colors.black,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
-      icon: Icon(icon),
-      label: Text(mealType),
     );
   }
 }
