@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:qr_flutter/qr_flutter.dart';
-import 'profile_screen.dart'; // Import the ProfileScreen
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'profile_screen.dart';
 import 'admin_scan_screen.dart';
+import 'voucher_market_place_screen.dart'; // Import VoucherMarketplaceScreen
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,61 +14,59 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
 
-void _login() async {
-  if (_formKey.currentState!.validate()) {
-    setState(() => _isLoading = true);
-    try {
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-        email: _emailController.text,
-        password: _passwordController.text,
-      );
-
-      // Check if login is successful
-      if (userCredential.user != null) {
-        // Check if the logged-in user is the admin
-        if (_emailController.text == 'admin@gmail.com' &&
-            _passwordController.text == 'password') {
-          // Navigate to AdminScanScreen for admin user
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const AdminScanScreen(),
-            ),
-          );
-          return; // Return to avoid navigating to ProfileScreen for admin
-        }
-        
-        // For regular users, navigate to ProfileScreen
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ProfileScreen(userId: userCredential.user!.uid),
-          ),
+  void _login() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() => _isLoading = true);
+      try {
+        UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+          email: _emailController.text,
+          password: _passwordController.text,
         );
+
+        if (userCredential.user != null) {
+          String userId = userCredential.user!.uid;
+          DocumentSnapshot userDoc = await _firestore.collection('users').doc(userId).get();
+
+          if (userDoc.exists && userDoc.data() is Map<String, dynamic>) {
+            final userData = userDoc.data() as Map<String, dynamic>;
+            String role = userData['role'] ?? '';
+
+            if (_emailController.text == 'admin@gmail.com' && _passwordController.text == 'password') {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const AdminScanScreen()),
+              );
+            } else if (role == 'non-hosteller') {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => VoucherMarketplaceScreen()),
+              );
+            } else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => ProfileScreen(userId: userId)),
+              );
+            }
+          }
+        }
+      } on FirebaseAuthException catch (e) {
+        setState(() => _isLoading = false);
+        var errorMessage = 'An error occurred. Please check your credentials and try again.';
+        if (e.code == 'user-not-found') {
+          errorMessage = 'No user found for that email.';
+        } else if (e.code == 'wrong-password') {
+          errorMessage = 'Wrong password provided for that user.';
+        }
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
       }
-    } on FirebaseAuthException catch (e) {
-      setState(() => _isLoading = false);
-      var errorMessage =
-          'An error occurred. Please check your credentials and try again.';
-      if (e.code == 'user-not-found') {
-        errorMessage = 'No user found for that email.';
-      } else if (e.code == 'wrong-password') {
-        errorMessage = 'Wrong password provided for that user.';
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorMessage),
-        ),
-      );
     }
   }
-}
-
 
   Widget _buildTextFormField({
     required String labelText,
@@ -125,8 +124,7 @@ void _login() async {
                 _buildTextFormField(
                   labelText: 'Email',
                   hintText: 'Enter your email',
-                  validator: (input) =>
-                      !input!.contains('@') ? 'Please enter a valid email' : null,
+                  validator: (input) => !input!.contains('@') ? 'Please enter a valid email' : null,
                   onSaved: (input) => _emailController.text = input!,
                   controller: _emailController,
                 ),
@@ -134,8 +132,7 @@ void _login() async {
                 _buildTextFormField(
                   labelText: 'Password',
                   hintText: 'Enter your password',
-                  validator: (input) =>
-                      input!.length < 6 ? 'Must be at least 6 characters' : null,
+                  validator: (input) => input!.length < 6 ? 'Must be at least 6 characters' : null,
                   onSaved: (input) => _passwordController.text = input!,
                   obscureText: true,
                   controller: _passwordController,

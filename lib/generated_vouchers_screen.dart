@@ -147,19 +147,28 @@ class VoucherListItem extends StatelessWidget {
     return ListTile(
       title: Text('${voucher['mealType']} on ${voucher['date']}'),
       subtitle: Text('Hostel ID: $hostelID'),
-      trailing: PopupMenuButton<String>(
-        onSelected: (String choice) {
-          if (choice == 'delete') {
-            onDelete();
-          }
-        },
-        itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-          const PopupMenuItem<String>(
-            value: 'delete',
-            child: ListTile(
-              leading: Icon(Icons.delete),
-              title: Text('Delete'),
-            ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          voucher['isClaimed']
+              ? const Icon(Icons.check, color: Colors.green)
+              : const Icon(Icons.close, color: Colors.red),
+          const SizedBox(width: 8),
+          PopupMenuButton<String>(
+            onSelected: (String choice) {
+              if (choice == 'delete') {
+                onDelete();
+              }
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                value: 'delete',
+                child: ListTile(
+                  leading: Icon(Icons.delete),
+                  title: Text('Delete'),
+                ),
+              ),
+            ],
           ),
         ],
       ),
