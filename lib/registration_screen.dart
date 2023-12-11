@@ -45,7 +45,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         password: _passwordController.text.trim(),
       );
 
-      String role = _isHosteller ? 'Hosteller' : 'Non-Hosteller';
+      String role = _isHosteller ? 'Hosteller' : 'non-hosteller';
 
       await _firestore.collection('users').doc(userCredential.user!.uid).set({
         'email': _emailController.text.trim(),

@@ -7,6 +7,9 @@ import 'registration_screen.dart';
 import 'get_started_screen.dart';
 import 'profile_screen.dart';
 import 'admin_scan_screen.dart';
+import 'voucher_market_place_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+ // Import your VoucherMarketplaceScreen
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,8 +53,33 @@ class LandingPage extends StatelessWidget {
               // Admin user is logged in, go to AdminScanScreen
               return AdminScanScreen();
             } else {
-              // Regular user is logged in, go to ProfileScreen
-              return ProfileScreen(userId: snapshot.data!.uid);
+              // Check the role of the user in Firestore
+              return FutureBuilder<DocumentSnapshot>(
+                future: FirebaseFirestore.instance.collection('users').doc(snapshot.data!.uid).get(),
+                builder: (context, roleSnapshot) {
+                  if (roleSnapshot.connectionState == ConnectionState.waiting) {
+                    // Still waiting for data, show a loading indicator
+                    return const Scaffold(
+                      body: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+
+                  if (roleSnapshot.hasError || !roleSnapshot.hasData) {
+                    // Error or no data, go to default ProfileScreen
+                    return ProfileScreen(userId: snapshot.data!.uid);
+                  }
+
+                  // Check the role field in the user document
+                  String? userRole = roleSnapshot.data!['role'];
+                  if (userRole == 'non-hosteller') {
+                    // User is a non-hosteller, go to VoucherMarketplaceScreen
+                    return VoucherMarketplaceScreen();
+                  } else {
+                    // User is not a non-hosteller, go to default ProfileScreen
+                    return ProfileScreen(userId: snapshot.data!.uid);
+                  }
+                },
+              );
             }
           }
           // User is not logged in, go to the 'Get Started' screen

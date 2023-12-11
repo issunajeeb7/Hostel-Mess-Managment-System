@@ -14,58 +14,113 @@ class _ShareMealScreenState extends State<ShareMealScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   DateTime selectedDate = DateTime.now();
   String selectedMealType = 'Breakfast'; // Default value
+  late List<String> generatedVouchers;
 
-  Future<void> shareMeal() async {
-    bool confirmed = await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Confirm Voucher Generation'),
-          content: Text(
-              'Are you sure you want to generate a meal voucher for ${DateFormat('yyyy-MM-dd').format(selectedDate)} - $selectedMealType?'),
-              backgroundColor: const Color(0xFFFBC32C),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(false); // User clicked No
-              },
-              child: const Text(
-                'No',
-                style: TextStyle(
-                  color: Color(0xFFFFF9EA )
-                ),
-                ),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(true); // User clicked Yes
-              },
-              child: const Text(
-                'Yes',
-                style: TextStyle(color: Color(0xFFFFF9EA )),
-                ),
-            ),
-          ],
-        );
-      },
-    );
+  @override
+  void initState() {
+    super.initState();
+    generatedVouchers = []; // Initialize as an empty list
+    loadGeneratedVouchers();
+  }
 
-    if (confirmed == true) {
-      await _firestore.collection('mealvouchers').add({
-        'hostellerId': FirebaseAuth.instance.currentUser!.uid,
-        'date': DateFormat('yyyy-MM-dd').format(selectedDate),
-        'mealType': selectedMealType,
-        'isClaimed': false,
-      });
+  Future<void> loadGeneratedVouchers() async {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      DocumentSnapshot userDoc =
+          await _firestore.collection('users').doc(currentUser.uid).get();
+      var userData = userDoc.data() as Map<String, dynamic>?;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-              'Meal voucher generated for ${DateFormat('yyyy-MM-dd').format(selectedDate)} - $selectedMealType'),
-        ),
-      );
+      if (userData != null && userData.containsKey('generatedVouchers')) {
+        setState(() {
+          generatedVouchers = List<String>.from(userData['generatedVouchers']);
+        });
+      }
     }
   }
+
+bool canGenerateVoucher(String mealType) {
+  String selectedDateString = DateFormat('yyyy-MM-dd').format(selectedDate);
+  return !generatedVouchers.contains('$selectedDateString-$mealType');
+}
+
+
+
+Future<void> shareMeal() async {
+  if (!canGenerateVoucher(selectedMealType)) {
+    // Voucher already generated for the selected date and meal type
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Voucher already generated for the selected date and meal type.'),
+      ),
+    );
+    return;
+  }
+
+  bool confirmed = await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Confirm Voucher Generation'),
+        content: Text(
+          'Are you sure you want to generate a meal voucher for ${DateFormat('yyyy-MM-dd').format(selectedDate)} - $selectedMealType?',
+          style: const TextStyle(color: Colors.black),
+        ),
+        backgroundColor: const Color(0xFFFBC32C),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(false); // User clicked No
+            },
+            child: const Text(
+              'No',
+              style: TextStyle(
+                color: Color(0xFFFFF9EA),
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(true); // User clicked Yes
+            },
+            child: const Text(
+              'Yes',
+              style: TextStyle(color: Color(0xFFFFF9EA)),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+
+  if (confirmed == true) {
+    String selectedDateString = DateFormat('yyyy-MM-dd').format(selectedDate);
+
+    // Allow Firestore to automatically generate a unique ID
+    await _firestore.collection('mealvouchers').add({
+      'hostellerId': FirebaseAuth.instance.currentUser!.uid,
+      'date': selectedDateString,
+      'mealType': selectedMealType,
+      'isClaimed': false,
+      'isUsed': false,
+    });
+
+    // Update generated vouchers for the current user
+    generatedVouchers.add('$selectedDateString-$selectedMealType');
+    await _firestore.collection('users').doc(FirebaseAuth.instance.currentUser!.uid).update({
+      'generatedVouchers': FieldValue.arrayUnion(generatedVouchers),
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Meal voucher generated for ${DateFormat('yyyy-MM-dd').format(selectedDate)} - $selectedMealType'),
+      ),
+    );
+
+    // Reload the list of generated vouchers
+    loadGeneratedVouchers();
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -86,12 +141,11 @@ class _ShareMealScreenState extends State<ShareMealScreen> {
             Text(
               'Date:',
               style: GoogleFonts.nunitoSans(
-                // fontFamily: 'Nunito Sans',
                 fontSize: 25,
                 fontWeight: FontWeight.w600,
               ),
             ),
-            SizedBox(height: 8.0),
+            const SizedBox(height: 8.0),
             Container(
               decoration: BoxDecoration(
                 color: const Color(0xFFFFF9EA),
@@ -108,8 +162,7 @@ class _ShareMealScreenState extends State<ShareMealScreen> {
               child: ListTile(
                 title: Text(
                   DateFormat('dd/MM/yyyy').format(selectedDate),
-                  style:  GoogleFonts.nunitoSans(
-                    // fontFamily: 'Nunito Sans',
+                  style: GoogleFonts.nunitoSans(
                     fontSize: 20,
                   ),
                 ),
@@ -132,16 +185,15 @@ class _ShareMealScreenState extends State<ShareMealScreen> {
                 },
               ),
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             Text(
               'Meals:',
               style: GoogleFonts.nunitoSans(
-                
                 fontSize: 25,
                 fontWeight: FontWeight.w600,
               ),
             ),
-            SizedBox(height: 8.0),
+            const SizedBox(height: 8.0),
             GridView.count(
               crossAxisCount: 2,
               shrinkWrap: true,
@@ -153,17 +205,17 @@ class _ShareMealScreenState extends State<ShareMealScreen> {
                 mealTypeCard('Dinner', 'assets/dinner.png'),
               ],
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: shareMeal,
               style: ElevatedButton.styleFrom(
-                primary: Color(0xFFFBC32C),
+                primary: canGenerateVoucher(selectedMealType) ? const Color(0xFFFBC32C) : Colors.grey,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15.0),
                 ),
                 shadowColor: Colors.black.withOpacity(1.0),
                 elevation: 4,
-                minimumSize: Size(350, 55),
+                minimumSize: const Size(350, 55),
               ),
               child: Container(
                 height: 55,
@@ -180,7 +232,7 @@ class _ShareMealScreenState extends State<ShareMealScreen> {
                 ),
               ),
             ),
-            SizedBox(height: 8.0),
+            const SizedBox(height: 8.0),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -189,13 +241,13 @@ class _ShareMealScreenState extends State<ShareMealScreen> {
                 );
               },
               style: ElevatedButton.styleFrom(
-                primary: Color(0xFFFBC32C),
+                primary: const Color(0xFFFBC32C),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15.0),
                 ),
                 shadowColor: Colors.black.withOpacity(1.0),
                 elevation: 4,
-                minimumSize: Size(350, 55),
+                minimumSize: const Size(350, 55),
               ),
               child: Container(
                 height: 55,
@@ -218,57 +270,63 @@ class _ShareMealScreenState extends State<ShareMealScreen> {
     );
   }
 
-  Widget mealTypeCard(String mealType, String imagePath) {
-    bool isSelected = selectedMealType == mealType;
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Card(
-        elevation: 4,
-        shadowColor: Colors.black.withOpacity(0.2),
-        shape: RoundedRectangleBorder(
+Widget mealTypeCard(String mealType, String imagePath) {
+  bool isSelected = selectedMealType == mealType;
+  bool canGenerate = canGenerateVoucher(mealType);
+
+  return Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: Card(
+      elevation: 4,
+      shadowColor: Colors.black.withOpacity(0.2),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: isSelected
+              ? const Color.fromARGB(255, 251, 196, 44)
+              : canGenerate ? const Color(0xFFFFF9EA) : Colors.grey,
           borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              spreadRadius: 1,
+              blurRadius: 5,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
-        child: Container(
-          decoration: BoxDecoration(
-            color: isSelected
-                ? Color.fromARGB(255, 251, 196, 44)
-                : Color(0xFFFFF9EA),
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                spreadRadius: 1,
-                blurRadius: 5,
-                offset: const Offset(0, 2),
+        child: InkWell(
+          onTap: canGenerate
+              ? () {
+                  setState(() {
+                    selectedMealType = mealType;
+                  });
+                }
+              : null,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Image.asset(imagePath, height: 90),
+              ),
+              Text(
+                mealType,
+                style: GoogleFonts.nunitoSans(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w400,
+                  color: isSelected ? Colors.white : canGenerate ? Colors.black : Colors.white,
+                ),
               ),
             ],
           ),
-          child: InkWell(
-            onTap: () {
-              setState(() {
-                selectedMealType = mealType;
-              });
-            },
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Image.asset(imagePath, height: 90),
-                ),
-                Text(
-                  mealType,
-                  style: GoogleFonts.nunitoSans(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w400,
-                    color: isSelected ? Colors.white : Colors.black,
-                  ),
-                ),
-              ],
-            ),
-          ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
+
 }

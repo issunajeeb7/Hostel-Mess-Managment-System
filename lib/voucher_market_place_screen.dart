@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'claimed_voucher_screen.dart';
 
 class VoucherMarketplaceScreen extends StatefulWidget {
   @override
@@ -96,6 +97,18 @@ class _VoucherMarketplaceScreenState extends State<VoucherMarketplaceScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Voucher Marketplace'),
+        actions: [
+          // Button to navigate to ClaimedVoucher screen
+          IconButton(
+            icon: Icon(Icons.check),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ClaimedVoucher()),
+              );
+            },
+          ),
+        ],
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: _firestore.collection('mealvouchers')
@@ -151,16 +164,16 @@ class _VoucherMarketplaceScreenState extends State<VoucherMarketplaceScreen> {
   }
 }
 
-class ClaimedVoucher extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Claimed Voucher'),
-      ),
-      body: const Center(
-        child: Text('Voucher successfully claimed!'),
-      ),
-    );
-  }
-}
+// class ClaimedVoucher extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text('Claimed Voucher'),
+//       ),
+//       body: const Center(
+//         child: Text('Voucher successfully claimed!'),
+//       ),
+//     );
+//   }
+// }

@@ -60,7 +60,7 @@ class ProfileScreen extends StatelessWidget {
                       padding: const EdgeInsets.all(16.0),
                       child: Center(
                         child: QrImageView(
-                          data: userId, // Use the provided user ID to generate a unique QR code
+                          data: 'Userid:$userId', // Use the provided user ID to generate a unique QR code
                           version: QrVersions.auto,
                           size: 200.0,
                         ),
