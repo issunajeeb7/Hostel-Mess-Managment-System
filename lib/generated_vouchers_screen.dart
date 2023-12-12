@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class MyVouchersScreen extends StatefulWidget {
   @override
@@ -36,23 +37,19 @@ class _MyVouchersScreenState extends State<MyVouchersScreen> {
 
   Future<Map<String, dynamic>> getUserData() async {
     try {
-      // Print the userId being used to fetch the user document.
       print("Fetching data for user ID: $currentUserId");
 
       DocumentSnapshot userDoc = await _firestore.collection('users').doc(currentUserId).get();
 
-      // Check if the userDoc exists and print the data.
       if (userDoc.exists) {
         Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
         print("User data found: $userData");
         return userData;
       } else {
-        // If the userDoc doesn't exist, return an empty map.
         print("No user document found for ID: $currentUserId");
         return {};
       }
     } catch (e) {
-      // If there's an error during the fetch, print it and return an empty map.
       print("Error fetching user data for user ID: $currentUserId, Error: $e");
       return {};
     }
@@ -64,7 +61,21 @@ class _MyVouchersScreenState extends State<MyVouchersScreen> {
       print("Voucher deleted successfully");
     } catch (e) {
       print("Error deleting voucher: $e");
-      // Handle error as needed
+    }
+  }
+
+  String getTimeForMealType(String mealType) {
+    switch (mealType) {
+      case 'Breakfast':
+        return '7:00-9:00 AM';
+      case 'Lunch':
+        return '12:00-2:00 PM';
+      case 'Snack':
+        return '3:00-5:00 PM';
+      case 'Dinner':
+        return '7:00-9:00 PM';
+      default:
+        return '';
     }
   }
 
@@ -81,7 +92,6 @@ class _MyVouchersScreenState extends State<MyVouchersScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            // If we run into an error, display it on the screen
             return Center(child: Text("Error: ${snapshot.error}"));
           }
           final hostelID = snapshot.data?['hostelID'];
@@ -135,40 +145,111 @@ class VoucherListItem extends StatelessWidget {
   final String hostelID;
   final VoidCallback onDelete;
 
-  const VoucherListItem({
+  VoucherListItem({
     Key? key,
     required this.voucher,
     required this.hostelID,
     required this.onDelete,
   }) : super(key: key);
 
+  String getTimeForMealType(String mealType) {
+    switch (mealType) {
+      case 'Breakfast':
+        return '7:00-9:00 AM';
+      case 'Lunch':
+        return '12:00-2:00 PM';
+      case 'Snack':
+        return '3:00-5:00 PM';
+      case 'Dinner':
+        return '7:00-9:00 PM';
+      default:
+        return '';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text('${voucher['mealType']} on ${voucher['date']}'),
-      subtitle: Text('Hostel ID: $hostelID'),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          voucher['isClaimed']
-              ? const Icon(Icons.check, color: Colors.green)
-              : const Icon(Icons.close, color: Colors.red),
-          const SizedBox(width: 8),
-          PopupMenuButton<String>(
-            onSelected: (String choice) {
-              if (choice == 'delete') {
-                onDelete();
-              }
-            },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-              const PopupMenuItem<String>(
-                value: 'delete',
-                child: ListTile(
-                  leading: Icon(Icons.delete),
-                  title: Text('Delete'),
-                ),
+    return Container(
+      margin: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        color: Colors.transparent, // Change the background color as needed
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      child: Stack(
+        children: <Widget>[
+          Image.asset('assets/ticket.png'), // Replace with your local asset path
+          Positioned(
+            left: 120,
+            top: 20,
+            child: Text(
+              'Hostel ID: $hostelID',
+              style: GoogleFonts.nunitoSans(
+                color: Color.fromARGB(255, 255, 255, 255),
               ),
-            ],
+            ),
+          ),
+          Positioned(
+            left: 120,
+            top: 40,
+            child: Text(
+              'Meal Type: ${voucher['mealType']}',
+              style: GoogleFonts.nunitoSans(
+                color: Color.fromARGB(255, 255, 255, 255),
+              ),
+            ),
+          ),
+          Positioned(
+            left: 120,
+            top: 60,
+            child: Text(
+              'Time: ${getTimeForMealType(voucher['mealType'])}',
+              style: GoogleFonts.nunitoSans(
+                color: Color.fromARGB(255, 255, 255, 255),
+              ),
+            ),
+          ),
+          Positioned(
+            left: 120,
+            top: 80,
+            child: Text(
+              'Price: Rs ${voucher['price']}',
+              style: GoogleFonts.nunitoSans(
+                color: Color.fromARGB(255, 255, 255, 255),
+              ),
+            ),
+          ),
+          Positioned(
+            right: 145,
+            bottom: 17,
+            child: Text(
+              voucher['isClaimed'] ? 'Claimed' : 'Listed',
+              style: GoogleFonts.nunitoSans(
+                color: Color.fromARGB(255, 255, 255, 255),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          Positioned(
+            right: 20,
+            top: 20,
+            child: PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert, color: Color.fromARGB(255, 255, 255, 255)), // Change the icon color
+              onSelected: (String choice) {
+                if (choice == 'delete') {
+                  onDelete();
+                }
+              },
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                const PopupMenuItem<String>(
+                  
+                  value: 'delete',
+                  child: ListTile(
+                    leading: Icon(Icons.delete, color: Color.fromARGB(255, 211, 10, 40)), // Change the icon color
+                    title: Text('Delete', style: TextStyle(color: Color.fromARGB(255, 0, 0, 0))), // Change the text color
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

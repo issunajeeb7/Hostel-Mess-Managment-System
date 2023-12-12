@@ -15,6 +15,8 @@ class _AdminScanScreenState extends State<AdminScanScreen> {
   late QRViewController controller;
   bool scanned = false;
   String userId = '';
+  Map<String, dynamic> inmates = {};
+  int globalCounter = 0;
 
   @override
   void dispose() {
@@ -38,11 +40,16 @@ class _AdminScanScreenState extends State<AdminScanScreen> {
             ),
           ),
           if (scanned)
-            ElevatedButton(
-              onPressed: _markAttendance,
-              child: const Text('Mark Attendance'),
+            Column(
+              children: [
+                ElevatedButton(
+                  onPressed: _markAttendance,
+                  child: const Text('Mark Attendance'),
+                ),
+                Text('Scan Counter: $globalCounter'),
+              ],
             ),
-        ],
+        ]
       ),
     );
   }
@@ -54,6 +61,18 @@ class _AdminScanScreenState extends State<AdminScanScreen> {
         scanned = true;
         userId = scanData.code ?? '';
         print('Scanned ID: $userId');
+
+        // Check if the user ID is already in the "inmates" map
+        if (inmates.containsKey(userId)) {
+          // Decrement the global counter and remove data from the map
+          globalCounter--;
+          inmates.remove(userId);
+        } else {
+          // Increment the global counter, add data to the map
+          globalCounter++;
+          inmates[userId] = {'data': 'additionalData'}; // You can modify this as per your data structure
+        }
+
         controller.pauseCamera();
       });
     });

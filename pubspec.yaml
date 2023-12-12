@@ -80,6 +80,7 @@ flutter:
     - assets/lunch.png
     - assets/snack.png
     - assets/dinner.png
+    - assets/ticket.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
