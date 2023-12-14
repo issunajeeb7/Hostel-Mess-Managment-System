@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'claimed_voucher_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class VoucherMarketplaceScreen extends StatefulWidget {
   @override
@@ -100,7 +101,7 @@ class _VoucherMarketplaceScreenState extends State<VoucherMarketplaceScreen> {
         actions: [
           // Button to navigate to ClaimedVoucher screen
           IconButton(
-            icon: Icon(Icons.check),
+            icon: const Icon(Icons.check),
             onPressed: () {
               Navigator.push(
                 context,
@@ -111,10 +112,11 @@ class _VoucherMarketplaceScreenState extends State<VoucherMarketplaceScreen> {
         ],
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: _firestore.collection('mealvouchers')
-          .where('isClaimed', isEqualTo: false)
-          .where('date', isEqualTo: selectedDate)
-          .snapshots(),
+        stream: _firestore
+            .collection('mealvouchers')
+            .where('isClaimed', isEqualTo: false)
+            .where('date', isEqualTo: selectedDate)
+            .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -132,29 +134,14 @@ class _VoucherMarketplaceScreenState extends State<VoucherMarketplaceScreen> {
               var voucherData = snapshot.data!.docs[index].data() as Map<String, dynamic>;
               String voucherId = snapshot.data!.docs[index].id;
 
-              return ListTile(
-                title: Text('${voucherData['mealType']}'),
-                subtitle: Text('Date: ${voucherData['date']}'),
+              return GestureDetector(
                 onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: const Text('Confirm Purchase'),
-                        content: const Text('Do you want to buy this voucher?'),
-                        actions: <Widget>[
-                          ElevatedButton(
-                            child: const Text('Pay Now'),
-                            onPressed: () {
-                              Navigator.of(context).pop(); // Close the dialog
-                              _launchRazorpay(voucherId);
-                            },
-                          ),
-                        ],
-                      );
-                    },
-                  );
+                  _showPurchaseConfirmationDialog(voucherId);
                 },
+                child: VoucherListItem(
+                  voucher: voucherData,
+                  voucherId: voucherId,
+                ),
               );
             },
           );
@@ -162,18 +149,136 @@ class _VoucherMarketplaceScreenState extends State<VoucherMarketplaceScreen> {
       ),
     );
   }
+
+  void _showPurchaseConfirmationDialog(String voucherId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Purchase',),
+          content: const Text('Do you want to buy this voucher?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+            ),
+            ElevatedButton(
+              child: const Text('Buy Now'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                _launchRazorpay(voucherId);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
 
-// class ClaimedVoucher extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('Claimed Voucher'),
-//       ),
-//       body: const Center(
-//         child: Text('Voucher successfully claimed!'),
-//       ),
-//     );
-//   }
-// }
+class VoucherListItem extends StatelessWidget {
+  final Map<String, dynamic> voucher;
+  final String voucherId;
+
+  VoucherListItem({
+    Key? key,
+    required this.voucher,
+    required this.voucherId,
+  }) : super(key: key);
+
+  String getTimeForMealType(String mealType) {
+    switch (mealType) {
+      case 'Breakfast':
+        return '7:00-9:00 AM';
+      case 'Lunch':
+        return '12:00-2:00 PM';
+      case 'Snack':
+        return '3:00-5:00 PM';
+      case 'Dinner':
+        return '7:00-9:00 PM';
+      default:
+        return '';
+    }
+  }
+
+  Future<String?> getHostelID(String hostellerID) async {
+    try {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(hostellerID).get();
+
+      if (userDoc.exists) {
+        Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+        return userData['hostelID'];
+      }
+    } catch (e) {
+      print('Error fetching user data: $e');
+    }
+
+    return null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<String?>(
+      future: getHostelID(voucher['hostellerId']),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (snapshot.hasError || !snapshot.hasData) {
+          return Container(); // Handle the error or empty case
+        }
+
+        String hostelID = snapshot.data!;
+
+        return Container(
+          margin: const EdgeInsets.all(8.0),
+          decoration: BoxDecoration(
+            color: Colors.transparent, // Change the background color as needed
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          child: Stack(
+            children: <Widget>[
+              Image.asset('assets/ticket.png'), // Replace with your local asset path
+              Positioned(
+                left: 120,
+                top: 10,
+                child: Text(
+                  'Hostel ID: $hostelID',
+                  style: GoogleFonts.nunitoSans(color: Colors.white),
+                ),
+              ),
+              Positioned(
+                left: 120,
+                top: 30,
+                child: Text(
+                  'Meal Type: ${voucher['mealType']}',
+                  style: GoogleFonts.nunitoSans(color: Colors.white),
+                ),
+              ),
+              Positioned(
+                left: 120,
+                top: 50,
+                child: Text(
+                  'Time: ${getTimeForMealType(voucher['mealType'])}',
+                  style: GoogleFonts.nunitoSans(color: Colors.white),
+                ),
+              ),
+              Positioned(
+                left: 120,
+                top: 70,
+                child: Text(
+                  'Price: Rs 10',
+                  style:GoogleFonts.nunitoSans(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
