@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'dart:async';
+
+
 
 class AdminScanScreen extends StatefulWidget {
   const AdminScanScreen({Key? key});
@@ -17,11 +21,18 @@ class _AdminScanScreenState extends State<AdminScanScreen> {
   String userId = '';
   Map<String, dynamic> inmates = {};
   int globalCounter = 0;
+  bool autoMarkAttendance = false;
+  AudioPlayer audioPlayer = AudioPlayer();
 
   @override
   void dispose() {
     controller.dispose();
+    audioPlayer.dispose();
     super.dispose();
+  }
+  
+  Future<void> playBeepSound() async {
+    await audioPlayer.play(AssetSource('beep.mp3'));
   }
 
   @override
@@ -42,21 +53,19 @@ class _AdminScanScreenState extends State<AdminScanScreen> {
           if (scanned)
             Column(
               children: [
-                ElevatedButton(
-                  onPressed: _markAttendance,
-                  child: const Text('Mark Attendance'),
-                ),
                 Text('Scan Counter: $globalCounter'),
               ],
             ),
-        ]
+        ],
       ),
     );
   }
 
-  void _onQRViewCreated(QRViewController controller) {
-    this.controller = controller;
-    controller.scannedDataStream.listen((scanData) {
+void _onQRViewCreated(QRViewController controller) {
+  this.controller = controller;
+  controller.scannedDataStream.listen((scanData) {
+    if (!autoMarkAttendance) {
+      playBeepSound(); // Add your beep sound file to the assets folder
       setState(() {
         scanned = true;
         userId = scanData.code ?? '';
@@ -70,13 +79,29 @@ class _AdminScanScreenState extends State<AdminScanScreen> {
         } else {
           // Increment the global counter, add data to the map
           globalCounter++;
-          inmates[userId] = {'data': 'additionalData'}; // You can modify this as per your data structure
+          inmates[userId] = {'data': 'additionalData'}; // Modify this as per your data structure
+          autoMarkAttendance = true;
+
+          // Automatically mark attendance after 2 seconds (adjust as needed)
+          Timer(Duration(seconds: 2), () {
+            _markAttendance();
+            autoMarkAttendance = false;
+          });
         }
 
-        controller.pauseCamera();
+        if (controller != null) {
+          controller.pauseCamera();
+          Future.delayed(Duration(milliseconds: 500), () {
+            controller.resumeCamera();
+          });
+        }
       });
-    });
-  }
+    }
+  });
+}
+
+
+
 
 Future<void> _markAttendance() async {
   if (scanned) {
