@@ -23,11 +23,16 @@ class _AdminScanScreenState extends State<AdminScanScreen> {
   int globalCounter = 0;
   bool autoMarkAttendance = false;
   AudioPlayer audioPlayer = AudioPlayer();
+    StreamController<int> _counterStreamController =
+      StreamController<int>.broadcast(); // Make it a broadcast stream controller
+
+  Stream<int> get counterStream => _counterStreamController.stream;
 
   @override
   void dispose() {
     controller.dispose();
     audioPlayer.dispose();
+    _counterStreamController.close();
     super.dispose();
   }
   
@@ -74,18 +79,30 @@ void _onQRViewCreated(QRViewController controller) {
         // Check if the user ID is already in the "inmates" map
         if (inmates.containsKey(userId)) {
           // Decrement the global counter and remove data from the map
+          print('Before decrement - inmates map: $inmates');
+          print('Before decrement - globalCounter: $globalCounter');
           globalCounter--;
           inmates.remove(userId);
+          print('After decrement - inmates map: $inmates');
+          print('After Decrement Counter: $globalCounter');
+
+          // Update the counter in Firestore
+          _updateCounterInFirestore();
         } else {
           // Increment the global counter, add data to the map
+          print('Before increment - inmates map: $inmates');
           globalCounter++;
-          inmates[userId] = {'data': 'additionalData'}; // Modify this as per your data structure
+          inmates[userId] = {'data': 'additionalData'};
+          _updateCounterInFirestore(); // Modify this as per your data structure
+          print('After increment - inmates map: $inmates');
           autoMarkAttendance = true;
 
           // Automatically mark attendance after 2 seconds (adjust as needed)
           Timer(Duration(seconds: 2), () {
-            _markAttendance();
-            autoMarkAttendance = false;
+            if (mounted) {
+              _markAttendance();
+              autoMarkAttendance = false;
+            }
           });
         }
 
@@ -99,6 +116,21 @@ void _onQRViewCreated(QRViewController controller) {
     }
   });
 }
+
+void _updateCounterInFirestore() async {
+  try {
+    // Update the counter in Firestore
+    await FirebaseFirestore.instance
+        .collection('scanCounter')
+        .doc('counterDoc')
+        .update({'counter': globalCounter});
+    print('Counter updated successfully: $globalCounter');
+  } catch (e) {
+    print('Error updating counter in Firestore: $e');
+  }
+}
+
+
 
 
 
@@ -164,12 +196,28 @@ Future<void> _markAttendance() async {
       );
     }
 
+    // Increment the global counter
+    // globalCounter++;
+    // _updateCounterInFirestore();
+    
+
+    // Add the updated counter value to the stream
+    // _counterStreamController.add(globalCounter);
+
+    // // Update the counter in Firestore
+    // await FirebaseFirestore.instance
+    //     .collection('scanCounter')
+    //     .doc('counterDoc')
+    //     .update({'counter': globalCounter});
+    //     print('Counter updated successfully: $globalCounter');
+
     setState(() {
       scanned = false;
       controller.resumeCamera();
     });
   }
 }
+
 
 
 
