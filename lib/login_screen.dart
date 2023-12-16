@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'profile_screen.dart';
-import 'admin_scan_screen.dart';
-import 'voucher_market_place_screen.dart'; // Import VoucherMarketplaceScreen
+import 'main_screen.dart'; // Import MainScreen
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({Key? key}) : super(key: key);
 
   @override
   _LoginScreenState createState() => _LoginScreenState();
@@ -36,23 +34,32 @@ class _LoginScreenState extends State<LoginScreen> {
           if (userDoc.exists && userDoc.data() is Map<String, dynamic>) {
             final userData = userDoc.data() as Map<String, dynamic>;
             String role = userData['role'] ?? '';
+            print('Role: $role');
 
-            if (_emailController.text == 'admin@gmail.com' && _passwordController.text == 'password') {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const AdminScanScreen()),
-              );
-            } else if (role == 'non-hosteller') {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => VoucherMarketplaceScreen()),
-              );
-            } else {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => ProfileScreen(userId: userId)),
-              );
+            int initialIndex;
+            switch (role) {
+              case 'admin':
+                initialIndex = 0; // Assuming the first index is for Admin
+                break;
+              case 'non-hosteller':
+                initialIndex = 1; // Assuming the second index is for Non-Hosteller
+                break;
+              default:
+                initialIndex = 2; // Assuming the third index is for Default user
+                break;
             }
+
+            // Navigate to the MainScreen with the appropriate initial index and user role
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MainScreen(
+                  initialIndex: initialIndex,
+                  userId: userId,
+                  userRole: role,
+                ),
+              ),
+            );
           }
         }
       } on FirebaseAuthException catch (e) {
@@ -67,6 +74,10 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     }
   }
+
+  // ... (rest of the code remains unchanged)
+
+
 
   Widget _buildTextFormField({
     required String labelText,

@@ -25,8 +25,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final FirebaseStorage _storage = FirebaseStorage.instance;
   String _profilePicUrl = '';
   Key _circleAvatarKey = UniqueKey();
-   
-   void initState() {
+
+  void initState() {
     super.initState();
     // Fetch user data, including profile picture URL
     _fetchUserData();
@@ -48,81 +48,81 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   // Create a UniqueKey for the Image.file widget
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      title: const Text('My Profile'),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.logout),
-          onPressed: () async {
-            await _auth.signOut();
-            Navigator.of(context).pushReplacementNamed('/login');
-          },
-        ),
-      ],
-    ),
-    body: Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          const SizedBox(height: 24.0),
-          Text(
-            'My Profile',
-            style: GoogleFonts.nunitoSans(
-              fontSize: 28.0,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(height: 16.0),
-          GestureDetector(
-            onTap: () async {
-              await _pickAndCropImage();
-            },
-            child: CircleAvatar(
-              key: _circleAvatarKey,
-              radius: 50.0,
-              backgroundImage: _profilePicUrl.isNotEmpty
-                  ? NetworkImage(
-                      '$_profilePicUrl?cache=${DateTime.now().millisecondsSinceEpoch}')
-                  : const AssetImage('assets/default_profile_pic.png')
-                      as ImageProvider<Object>?,
-              // Added: Display default image if _profilePicUrl is empty
-            ),
-          ),
-          const SizedBox(height: 16.0),
-          FutureBuilder<DocumentSnapshot>(
-            future: _firestore.collection('users').doc(widget.userId).get(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                if (snapshot.data != null) {
-                  Map<String, dynamic> data =
-                      snapshot.data!.data() as Map<String, dynamic>;
-                  String fullName =
-                      "${data['firstName'] ?? ''} ${data['lastName'] ?? ''}"
-                          .trim();
-                  return Column(
-                    children: <Widget>[
-                      Text(
-                        fullName.isNotEmpty ? fullName : 'Name not found',
-                        style: GoogleFonts.nunitoSans(
-                            fontSize: 20, fontWeight: FontWeight.w500),
-                      ),
-                      Text(
-                        data['hostelID'] ?? 'Hostel ID not found',
-                        style: GoogleFonts.nunitoSans(fontSize: 18),
-                      ),
-                    ],
-                  );
-                } else {
-                  return const Text('User data not available.');
-                }
-              }
-              return const CircularProgressIndicator();
+ @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('My Profile'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await _auth.signOut();
+              Navigator.of(context).pushReplacementNamed('/login');
             },
           ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              const SizedBox(height: 24.0),
+              Text(
+                'My Profile',
+                style: GoogleFonts.nunitoSans(
+                  fontSize: 28.0,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              GestureDetector(
+                onTap: () async {
+                  await _pickAndCropImage();
+                },
+                child: CircleAvatar(
+                  key: _circleAvatarKey,
+                  radius: 50.0,
+                  backgroundImage: _profilePicUrl.isNotEmpty
+                      ? NetworkImage(
+                          '$_profilePicUrl?cache=${DateTime.now().millisecondsSinceEpoch}')
+                      : const AssetImage('assets/default_profile_pic.png')
+                          as ImageProvider<Object>?,
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              FutureBuilder<DocumentSnapshot>(
+                future: _firestore.collection('users').doc(widget.userId).get(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    if (snapshot.data != null) {
+                      Map<String, dynamic> data =
+                          snapshot.data!.data() as Map<String, dynamic>;
+                      String fullName =
+                          "${data['firstName'] ?? ''} ${data['lastName'] ?? ''}"
+                              .trim();
+                      return Column(
+                        children: <Widget>[
+                          Text(
+                            fullName.isNotEmpty ? fullName : 'Name not found',
+                            style: GoogleFonts.nunitoSans(
+                                fontSize: 20, fontWeight: FontWeight.w500),
+                          ),
+                          Text(
+                            data['hostelID'] ?? 'Hostel ID not found',
+                            style: GoogleFonts.nunitoSans(fontSize: 18),
+                          ),
+                        ],
+                      );
+                    } else {
+                      return const Text('User data not available.');
+                    }
+                  }
+                  return const CircularProgressIndicator();
+                },
+              ),
           const SizedBox(height: 24.0),
           QrImageView(
             data: 'Userid:${widget.userId}',
@@ -177,6 +177,7 @@ Widget build(BuildContext context) {
         ],
       ),
     ),
+      ),
   );
 }
 

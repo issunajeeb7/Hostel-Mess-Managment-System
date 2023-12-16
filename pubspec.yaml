@@ -87,6 +87,16 @@ flutter:
     - assets/ticket.png
     - assets/beep.mp3
     - assets/default_profile_pic.png
+    - assets/home.png
+    - assets/home_outlined.png
+    - assets/fastfood.png
+    - assets/fastfood_outlined.png
+    - assets/dollar_outlined.png
+    - assets/dollar.png
+    - assets/ticketicon.png
+    - assets/ticketicon_outlined.png
+    - assets/shoppingcart_outlined.png
+    - assets/shoppingcart.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -5,10 +5,12 @@ import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'claimed_voucher_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'login_screen.dart';
 
 class VoucherMarketplaceScreen extends StatefulWidget {
   @override
-  _VoucherMarketplaceScreenState createState() => _VoucherMarketplaceScreenState();
+  _VoucherMarketplaceScreenState createState() =>
+      _VoucherMarketplaceScreenState();
 }
 
 class _VoucherMarketplaceScreenState extends State<VoucherMarketplaceScreen> {
@@ -37,7 +39,8 @@ class _VoucherMarketplaceScreenState extends State<VoucherMarketplaceScreen> {
     _selectedVoucherId = voucherId; // Store the selected voucher ID
     var options = {
       'key': 'rzp_test_7mJ2dRxRtudD36', // Replace with your API key
-      'amount': 1000, // Amount is in the smallest currency unit (like paise for INR)
+      'amount':
+          1000, // Amount is in the smallest currency unit (like paise for INR)
       'name': 'Mess Admin',
       'description': 'Payment for Meal Voucher',
       'prefill': {'contact': '1234567890', 'email': 'test@example.com'},
@@ -66,7 +69,10 @@ class _VoucherMarketplaceScreenState extends State<VoucherMarketplaceScreen> {
           'voucherID': _selectedVoucherId, // Use the stored voucher ID
         });
 
-        await _firestore.collection('mealvouchers').doc(_selectedVoucherId).update({
+        await _firestore
+            .collection('mealvouchers')
+            .doc(_selectedVoucherId)
+            .update({
           'isClaimed': true,
         });
 
@@ -79,18 +85,22 @@ class _VoucherMarketplaceScreenState extends State<VoucherMarketplaceScreen> {
         );
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("SUCCESS: ${response.paymentId}")));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("SUCCESS: ${response.paymentId}")));
     } catch (e) {
       debugPrint('Error processing payment success: $e');
     }
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("ERROR: ${response.code.toString()} - ${response.message}")));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content:
+            Text("ERROR: ${response.code.toString()} - ${response.message}")));
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("EXTERNAL WALLET: ${response.walletName}")));
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("EXTERNAL WALLET: ${response.walletName}")));
   }
 
   @override
@@ -99,14 +109,15 @@ class _VoucherMarketplaceScreenState extends State<VoucherMarketplaceScreen> {
       appBar: AppBar(
         title: const Text('Voucher Marketplace'),
         actions: [
-          // Button to navigate to ClaimedVoucher screen
+          // Button to log out
           IconButton(
-            icon: const Icon(Icons.check),
+            icon: const Icon(Icons.logout),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ClaimedVoucher()),
-              );
+              // Add your logout logic here
+              // For example, sign out the user and navigate to the login screen
+              FirebaseAuth.instance.signOut();
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) => LoginScreen()));
             },
           ),
         ],
@@ -125,13 +136,15 @@ class _VoucherMarketplaceScreenState extends State<VoucherMarketplaceScreen> {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return Center(child: Text('No available vouchers for $selectedDate'));
+            return Center(
+                child: Text('No available vouchers for $selectedDate'));
           }
 
           return ListView.builder(
             itemCount: snapshot.data!.docs.length,
             itemBuilder: (context, index) {
-              var voucherData = snapshot.data!.docs[index].data() as Map<String, dynamic>;
+              var voucherData =
+                  snapshot.data!.docs[index].data() as Map<String, dynamic>;
               String voucherId = snapshot.data!.docs[index].id;
 
               return GestureDetector(
@@ -155,7 +168,9 @@ class _VoucherMarketplaceScreenState extends State<VoucherMarketplaceScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Confirm Purchase',),
+          title: const Text(
+            'Confirm Purchase',
+          ),
           content: const Text('Do you want to buy this voucher?'),
           actions: <Widget>[
             TextButton(
@@ -205,7 +220,10 @@ class VoucherListItem extends StatelessWidget {
 
   Future<String?> getHostelID(String hostellerID) async {
     try {
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(hostellerID).get();
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(hostellerID)
+          .get();
 
       if (userDoc.exists) {
         Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
@@ -241,7 +259,8 @@ class VoucherListItem extends StatelessWidget {
           ),
           child: Stack(
             children: <Widget>[
-              Image.asset('assets/ticket.png'), // Replace with your local asset path
+              Image.asset(
+                  'assets/ticket.png'), // Replace with your local asset path
               Positioned(
                 left: 120,
                 top: 10,
@@ -271,7 +290,7 @@ class VoucherListItem extends StatelessWidget {
                 top: 70,
                 child: Text(
                   'Price: Rs 10',
-                  style:GoogleFonts.nunitoSans(color: Colors.white),
+                  style: GoogleFonts.nunitoSans(color: Colors.white),
                 ),
               ),
             ],
@@ -281,4 +300,3 @@ class VoucherListItem extends StatelessWidget {
     );
   }
 }
-
