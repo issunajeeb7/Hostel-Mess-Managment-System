@@ -7,8 +7,7 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:io';
-import 'share_meal_screen.dart';
-import 'fee_payment_screen.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String userId;
@@ -35,11 +34,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _fetchUserData() async {
     try {
       // Fetch user document
-      final userDoc = await _firestore.collection('users').doc(widget.userId).get();
+      final userDoc =
+          await _firestore.collection('users').doc(widget.userId).get();
 
       // Update _profilePicUrl
       setState(() {
-        _profilePicUrl = userDoc['profilePicUrl'] ?? ''; // Use the correct field name
+        _profilePicUrl =
+            userDoc['profilePicUrl'] ?? ''; // Use the correct field name
       });
     } catch (e) {
       print('Error fetching user data: $e');
@@ -48,7 +49,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   // Create a UniqueKey for the Image.file widget
 
- @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -82,17 +83,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 onTap: () async {
                   await _pickAndCropImage();
                 },
-                child: CircleAvatar(
+                child: CachedNetworkImage(
                   key: _circleAvatarKey,
-                  radius: 50.0,
-                  backgroundImage: _profilePicUrl.isNotEmpty
-                      ? NetworkImage(
-                          '$_profilePicUrl?cache=${DateTime.now().millisecondsSinceEpoch}')
-                      : const AssetImage('assets/default_profile_pic.png')
-                          as ImageProvider<Object>?,
+                  imageUrl: _profilePicUrl.isNotEmpty
+                      ? _profilePicUrl
+                      : 'assets/default_profile_pic.png',
+                  placeholder: (context, url) =>
+                      CircularProgressIndicator(), // Placeholder while loading
+                  errorWidget: (context, url, error) =>
+                      Icon(Icons.error), // Widget to display on error
+                  imageBuilder: (context, imageProvider) => CircleAvatar(
+                    radius: 50.0,
+                    backgroundImage: imageProvider,
+                  ),
                 ),
               ),
               const SizedBox(height: 16.0),
+
               FutureBuilder<DocumentSnapshot>(
                 future: _firestore.collection('users').doc(widget.userId).get(),
                 builder: (context, snapshot) {
@@ -123,64 +130,97 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   return const CircularProgressIndicator();
                 },
               ),
-          const SizedBox(height: 24.0),
-          QrImageView(
-            data: 'Userid:${widget.userId}',
-            version: QrVersions.auto,
-            size: 250.0,
+              const SizedBox(height: 24.0),
+              QrImageView(
+                data: 'Userid:${widget.userId}',
+                version: QrVersions.auto,
+                size: 250.0,
+              ),
+              // const SizedBox(height: 24.0),
+              // ElevatedButton(
+              //   onPressed: () {
+              //     Navigator.push(
+              //       context,
+              //       MaterialPageRoute(builder: (context) => ShareMealScreen()),
+              //     );
+              //   },
+              //   child: const Text('Share a Meal'),
+//           // ),
+//
+//           ElevatedButton(
+//   onPressed: () {
+//     Navigator.push(
+//       context,
+//       MaterialPageRoute(builder: (context) => FeePaymentScreen()), // Import FeePaymentScreen.dart if not imported
+//     );
+//   },
+//   child: const Text('Fee Payment'),
+// ),
+              const SizedBox(height: 30),
+              Container(
+                width: 238,
+                height: 100,
+                margin: const EdgeInsets.symmetric(horizontal: 20.0),
+                decoration: BoxDecoration(
+                  color: Color(0xFFFFF9EA),
+                  borderRadius: BorderRadius.circular(15.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      spreadRadius: 0,
+                      blurRadius: 5,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Stack(
+                    children: [
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: Text(
+                          'Current Diners',
+                          style: GoogleFonts.nunitoSans(
+                              fontSize: 16.0, fontWeight: FontWeight.w400),
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.center,
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                              top: 17.0), // Add top padding here
+                          child: StreamBuilder<DocumentSnapshot>(
+                            stream: FirebaseFirestore.instance
+                                .collection('scanCounter')
+                                .doc('counterDoc')
+                                .snapshots(),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData && snapshot.data != null) {
+                                int counterValue = snapshot.data!['counter'];
+                                return Text(
+                                  '$counterValue/120',
+                                  style: GoogleFonts.nunitoSans(
+                                      fontSize: 25.0,
+                                      fontWeight: FontWeight.bold),
+                                );
+                              } else {
+                                return const Text('Counter data not available');
+                              }
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 24.0),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ShareMealScreen()),
-              );
-            },
-            child: const Text('Share a Meal'),
-          ),
-          const SizedBox(height: 16.0),
-          ElevatedButton(
-  onPressed: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => FeePaymentScreen()), // Import FeePaymentScreen.dart if not imported
+        ),
+      ),
     );
-  },
-  child: const Text('Fee Payment'),
-),
-
-          Container(
-            padding: const EdgeInsets.all(10.0),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.blueAccent),
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            child: StreamBuilder<DocumentSnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('scanCounter')
-                  .doc('counterDoc')
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData && snapshot.data != null) {
-                  int counterValue = snapshot.data!['counter'];
-                  return Text(
-                    'Real-time Counter: $counterValue',
-                    style: TextStyle(fontSize: 18.0),
-                  );
-                } else {
-                  return const Text('Counter data not available');
-                }
-              },
-            ),
-          ),
-        ],
-      ),
-    ),
-      ),
-  );
-}
-
+  }
 
   Future<void> _pickAndCropImage() async {
     final picker = ImagePicker();

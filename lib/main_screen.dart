@@ -23,16 +23,13 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  
-  
-
   @override
   void initState() {
     super.initState();
     // _selectedIndex = widget.initialIndex;
   }
 
-int _selectedIndex = 0;
+  int _selectedIndex = 0;
   // Create a function to load icons from assets based on user role
   Widget _loadIcon(String iconName, bool isSelected) {
     final iconSize = 30.0;
@@ -112,16 +109,26 @@ int _selectedIndex = 0;
         index: _selectedIndex,
         children: screens,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: bottomItems,
-        currentIndex: _selectedIndex,
-        onTap: (index) => setState(() => _selectedIndex = index),
-        selectedItemColor: Colors.black, // Color for the selected item
-        unselectedItemColor: Colors.grey, // Color for the unselected item
-        backgroundColor: Color(0xFFFBC32C), // The background color
-        type: BottomNavigationBarType.fixed, // This ensures all items are fixed to the bottom bar
-        showSelectedLabels: false, // This will hide the label text for selected items
-        showUnselectedLabels: false, // This will hide the label text for unselected items
+      bottomNavigationBar: Theme(
+        data: Theme.of(context).copyWith(
+          splashColor: Colors.transparent, // Set splash color to transparent
+          highlightColor:
+              Colors.transparent, // Set highlight color to transparent
+        ),
+        child: BottomNavigationBar(
+          items: bottomItems,
+          currentIndex: _selectedIndex,
+          onTap: (index) => setState(() => _selectedIndex = index),
+          selectedItemColor: Colors.black, // Color for the selected item
+          unselectedItemColor: Colors.grey, // Color for the unselected item
+          backgroundColor: Color(0xFFFBC32C), // The background color
+          type: BottomNavigationBarType
+              .fixed, // This ensures all items are fixed to the bottom bar
+          showSelectedLabels:
+              false, // This will hide the label text for selected items
+          showUnselectedLabels:
+              false, // This will hide the label text for unselected items
+        ),
       ),
     );
   }
