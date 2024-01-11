@@ -24,9 +24,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final FirebaseStorage _storage = FirebaseStorage.instance;
   String _profilePicUrl = '';
   Key _circleAvatarKey = UniqueKey();
+  String _fullName = '';
+  String _hostelID = '';
+  bool _userDataLoaded = false;
 
   void initState() {
     super.initState();
+
     // Fetch user data, including profile picture URL
     _fetchUserData();
   }
@@ -34,20 +38,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _fetchUserData() async {
     try {
       // Fetch user document
-      final userDoc =
-          await _firestore.collection('users').doc(widget.userId).get();
+      final userDoc = await _firestore.collection('users').doc(widget.userId).get();
 
       // Update _profilePicUrl
       setState(() {
-        _profilePicUrl =
-            userDoc['profilePicUrl'] ?? ''; // Use the correct field name
+        _profilePicUrl = userDoc['profilePicUrl'] ?? ''; // Use the correct field name
+        _fullName =
+            "${userDoc['firstName'] ?? ''} ${userDoc['lastName'] ?? ''}".trim();
+        _hostelID = userDoc['hostelID'] ?? 'Hostel ID not found';
+        _userDataLoaded = true;
       });
     } catch (e) {
       print('Error fetching user data: $e');
     }
   }
-
-  // Create a UniqueKey for the Image.file widget
 
   @override
   Widget build(BuildContext context) {
@@ -100,62 +104,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const SizedBox(height: 16.0),
 
-              FutureBuilder<DocumentSnapshot>(
-                future: _firestore.collection('users').doc(widget.userId).get(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.done) {
-                    if (snapshot.data != null) {
-                      Map<String, dynamic> data =
-                          snapshot.data!.data() as Map<String, dynamic>;
-                      String fullName =
-                          "${data['firstName'] ?? ''} ${data['lastName'] ?? ''}"
-                              .trim();
-                      return Column(
-                        children: <Widget>[
-                          Text(
-                            fullName.isNotEmpty ? fullName : 'Name not found',
-                            style: GoogleFonts.nunitoSans(
-                                fontSize: 20, fontWeight: FontWeight.w500),
-                          ),
-                          Text(
-                            data['hostelID'] ?? 'Hostel ID not found',
-                            style: GoogleFonts.nunitoSans(fontSize: 18),
-                          ),
-                        ],
-                      );
-                    } else {
-                      return const Text('User data not available.');
-                    }
-                  }
-                  return const CircularProgressIndicator();
-                },
-              ),
+              if (_userDataLoaded)
+                Column(
+                  children: <Widget>[
+                    Text(
+                      _fullName.isNotEmpty ? _fullName : 'Name not found',
+                      style: GoogleFonts.nunitoSans(
+                          fontSize: 20, fontWeight: FontWeight.w500),
+                    ),
+                    Text(
+                      _hostelID,
+                      style: GoogleFonts.nunitoSans(fontSize: 18),
+                    ),
+                  ],
+                )
+              else
+                const CircularProgressIndicator(),
+
               const SizedBox(height: 24.0),
               QrImageView(
                 data: 'Userid:${widget.userId}',
                 version: QrVersions.auto,
                 size: 250.0,
               ),
-              // const SizedBox(height: 24.0),
-              // ElevatedButton(
-              //   onPressed: () {
-              //     Navigator.push(
-              //       context,
-              //       MaterialPageRoute(builder: (context) => ShareMealScreen()),
-              //     );
-              //   },
-              //   child: const Text('Share a Meal'),
-//           // ),
-//
-//           ElevatedButton(
-//   onPressed: () {
-//     Navigator.push(
-//       context,
-//       MaterialPageRoute(builder: (context) => FeePaymentScreen()), // Import FeePaymentScreen.dart if not imported
-//     );
-//   },
-//   child: const Text('Fee Payment'),
-// ),
               const SizedBox(height: 30),
               Container(
                 width: 238,
@@ -215,6 +186,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
               ),
+              const SizedBox(height: 30),
             ],
           ),
         ),

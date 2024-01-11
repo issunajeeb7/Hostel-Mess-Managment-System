@@ -62,13 +62,19 @@ class _FeePaymentScreenState extends State<FeePaymentScreen> {
         usedVouchers = 0;
 
         DateTime now = DateTime.now();
-        String currentMonthYear = '${now.year}-${now.month}';
+        String currentMonth = now.month
+            .toString()
+            .padLeft(2, '0'); // Format month with leading zeros
+        String currentMonthYear = '${now.year}-$currentMonth';
+        print('The Date is: $currentMonthYear');
         for (var voucherString in generatedVouchersData) {
           List<String> voucherComponents = voucherString.split('-');
           if (voucherComponents.length == 4 &&
               voucherComponents[0] == now.year.toString() &&
-              voucherComponents[1] == now.month.toString()) {
+              voucherComponents[1] == currentMonth) {
+            // Use formatted month here
             usedVouchers++;
+            print('Fetched Voucher String: $voucherString');
           }
         }
         setState(() {
