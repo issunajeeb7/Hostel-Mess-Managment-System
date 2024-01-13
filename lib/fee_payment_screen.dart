@@ -123,6 +123,14 @@ class _FeePaymentScreenState extends State<FeePaymentScreen> {
         'feeStatus': true,
       });
 
+      // Record the payment in the feePayment collection
+      await _firestore.collection('feePayment').add({
+        'status': true,
+        'date': _dateFormat
+            .format(DateTime.now()), // Current date in yyyy-MM-dd format
+        'userId': userId,
+      });
+
       // Update feeStatus in the local state
       setState(() {
         feeStatus = true;
@@ -152,82 +160,93 @@ class _FeePaymentScreenState extends State<FeePaymentScreen> {
       appBar: AppBar(
         title: const Text('Fee Payment'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Pending Fees',
-              style: GoogleFonts.nunitoSans(
-                fontSize: 25.0,
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-            const SizedBox(height: 50),
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 35, horizontal: 70),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                color: const Color(0xFFFFF9EA),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    spreadRadius: 0,
-                    blurRadius: 4,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    '₹$remainingFee',
-                    style: GoogleFonts.nunitoSans(
-                      fontSize: 32.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    'Total Vouchers: $usedVouchers',
-                    style: GoogleFonts.nunitoSans(
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.normal,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 200),
-            ElevatedButton(
-              onPressed: _isButtonEnabled()
-                  ? feeStatus
-                      ? null
-                      : _launchRazorpay
-                  : null,
-              style: ElevatedButton.styleFrom(
-                primary: _isButtonEnabled()
-                    ? feeStatus
-                        ? Colors.grey
-                        : const Color(0xFFFBC32C)
-                    : Colors.grey,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                ),
-                shadowColor: Colors.black.withOpacity(1.0),
-                elevation: 4,
-                minimumSize: const Size(325, 55),
-              ),
-              child: Text(
-                feeStatus ? 'Already Paid' : 'Pay Now',
+      body: SingleChildScrollView(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(height: 80),
+              Text(
+                'Pending Fees',
                 style: GoogleFonts.nunitoSans(
-                  fontSize: 28,
-                  color: Colors.black,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 25.0,
+                  fontWeight: FontWeight.normal,
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 50),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 35, horizontal: 70),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  color: const Color(0xFFFFF9EA),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      spreadRadius: 0,
+                      blurRadius: 4,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      '₹$remainingFee',
+                      style: GoogleFonts.nunitoSans(
+                        fontSize: 32.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      'Total Vouchers: $usedVouchers',
+                      style: GoogleFonts.nunitoSans(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 200),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0), // Adjust horizontal padding as needed
+                child: ElevatedButton(
+                  onPressed: _isButtonEnabled()
+                      ? feeStatus
+                          ? null
+                          : _launchRazorpay
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    primary: _isButtonEnabled()
+                        ? feeStatus
+                            ? Colors.grey
+                            : const Color(0xFFFBC32C)
+                        : Colors.grey,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    shadowColor: Colors.black.withOpacity(1.0),
+                    elevation: 4,
+                    minimumSize: const Size(325,
+                        55), // You may need to adjust this for very small screens
+                  ),
+                  child: Text(
+                    feeStatus ? 'Already Paid' : 'Pay Now',
+                    style: GoogleFonts.nunitoSans(
+                      fontSize: 28,
+                      color: Colors.black,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
     );

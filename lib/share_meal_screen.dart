@@ -133,138 +133,140 @@ Future<void> shareMeal() async {
         elevation: 0,
         iconTheme: IconThemeData(color: theme.primaryColor),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Date:',
-              style: GoogleFonts.nunitoSans(
-                fontSize: 25,
-                fontWeight: FontWeight.w600,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Date:',
+                style: GoogleFonts.nunitoSans(
+                  fontSize: 25,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
-            const SizedBox(height: 8.0),
-            Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFF9EA),
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    spreadRadius: 1,
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
+              const SizedBox(height: 8.0),
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF9EA),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      spreadRadius: 1,
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: ListTile(
+                  title: Text(
+                    DateFormat('dd/MM/yyyy').format(selectedDate),
+                    style: GoogleFonts.nunitoSans(
+                      fontSize: 20,
+                    ),
                   ),
+                  trailing: Icon(
+                    Icons.calendar_today,
+                    color: theme.primaryColor,
+                  ),
+                  onTap: () async {
+                    final DateTime? pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: selectedDate,
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime.now().add(const Duration(days: 365)),
+                    );
+                    if (pickedDate != null && pickedDate != selectedDate) {
+                      setState(() {
+                        selectedDate = pickedDate;
+                      });
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              Text(
+                'Meals:',
+                style: GoogleFonts.nunitoSans(
+                  fontSize: 25,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8.0),
+              GridView.count(
+                crossAxisCount: 2,
+                shrinkWrap: true,
+                childAspectRatio: 1.0,
+                children: <Widget>[
+                  mealTypeCard('Breakfast', 'assets/breakfast.png'),
+                  mealTypeCard('Snack', 'assets/snack.png'),
+                  mealTypeCard('Lunch', 'assets/lunch.png'),
+                  mealTypeCard('Dinner', 'assets/dinner.png'),
                 ],
               ),
-              child: ListTile(
-                title: Text(
-                  DateFormat('dd/MM/yyyy').format(selectedDate),
-                  style: GoogleFonts.nunitoSans(
-                    fontSize: 20,
+              const SizedBox(height: 16.0),
+              ElevatedButton(
+                onPressed: shareMeal,
+                style: ElevatedButton.styleFrom(
+                  primary: canGenerateVoucher(selectedMealType) ? const Color(0xFFFBC32C) : Colors.grey,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  shadowColor: Colors.black.withOpacity(1.0),
+                  elevation: 4,
+                  minimumSize: const Size(350, 55),
+                ),
+                child: Container(
+                  height: 55,
+                  width: 350,
+                  child: Center(
+                    child: Text(
+                      'Share The Meal',
+                      style: GoogleFonts.nunitoSans(
+                        fontSize: 25,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black,
+                      ),
+                    ),
                   ),
                 ),
-                trailing: Icon(
-                  Icons.calendar_today,
-                  color: theme.primaryColor,
-                ),
-                onTap: () async {
-                  final DateTime? pickedDate = await showDatePicker(
-                    context: context,
-                    initialDate: selectedDate,
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime.now().add(const Duration(days: 365)),
+              ),
+              const SizedBox(height: 8.0),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => MyVouchersScreen()),
                   );
-                  if (pickedDate != null && pickedDate != selectedDate) {
-                    setState(() {
-                      selectedDate = pickedDate;
-                    });
-                  }
                 },
-              ),
-            ),
-            const SizedBox(height: 16.0),
-            Text(
-              'Meals:',
-              style: GoogleFonts.nunitoSans(
-                fontSize: 25,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 8.0),
-            GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              childAspectRatio: 1.0,
-              children: <Widget>[
-                mealTypeCard('Breakfast', 'assets/breakfast.png'),
-                mealTypeCard('Snack', 'assets/snack.png'),
-                mealTypeCard('Lunch', 'assets/lunch.png'),
-                mealTypeCard('Dinner', 'assets/dinner.png'),
-              ],
-            ),
-            const SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: shareMeal,
-              style: ElevatedButton.styleFrom(
-                primary: canGenerateVoucher(selectedMealType) ? const Color(0xFFFBC32C) : Colors.grey,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.0),
+                style: ElevatedButton.styleFrom(
+                  primary: const Color(0xFFFBC32C),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  shadowColor: Colors.black.withOpacity(1.0),
+                  elevation: 4,
+                  minimumSize: const Size(350, 55),
                 ),
-                shadowColor: Colors.black.withOpacity(1.0),
-                elevation: 4,
-                minimumSize: const Size(350, 55),
-              ),
-              child: Container(
-                height: 55,
-                width: 350,
-                child: Center(
-                  child: Text(
-                    'Share The Meal',
-                    style: GoogleFonts.nunitoSans(
-                      fontSize: 25,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black,
+                child: Container(
+                  height: 55,
+                  width: 350,
+                  child: Center(
+                    child: Text(
+                      'View My Vouchers',
+                      style: GoogleFonts.nunitoSans(
+                        fontSize: 25,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 8.0),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => MyVouchersScreen()),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                primary: const Color(0xFFFBC32C),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                ),
-                shadowColor: Colors.black.withOpacity(1.0),
-                elevation: 4,
-                minimumSize: const Size(350, 55),
-              ),
-              child: Container(
-                height: 55,
-                width: 350,
-                child: Center(
-                  child: Text(
-                    'View My Vouchers',
-                    style: GoogleFonts.nunitoSans(
-                      fontSize: 25,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
