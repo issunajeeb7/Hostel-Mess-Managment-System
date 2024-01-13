@@ -5,6 +5,7 @@ import 'profile_screen.dart';
 import 'claimed_voucher_screen.dart';
 import 'share_meal_screen.dart';
 import 'fee_payment_screen.dart';
+import 'admin_fee_status_screen.dart';
 
 class MainScreen extends StatefulWidget {
   final int initialIndex;
@@ -49,15 +50,16 @@ class _MainScreenState extends State<MainScreen> {
     if (widget.userRole == 'admin') {
       screens = [
         AdminScanScreen(),
+        AdminFeeStatusScreen(),
         // Add more admin-specific screens here
       ];
       bottomItems = [
         BottomNavigationBarItem(
-          icon: _loadIcon('dashboard', _selectedIndex == 0),
+          icon: _loadIcon('qr', _selectedIndex == 0),
           label: 'Dashboard',
         ),
         BottomNavigationBarItem(
-          icon: _loadIcon('other_houses', _selectedIndex == 1),
+          icon: _loadIcon('dollar', _selectedIndex == 1),
           label: 'Other',
         ),
         // Add more items for admin-specific features here
