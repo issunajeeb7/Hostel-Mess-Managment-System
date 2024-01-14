@@ -45,7 +45,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _profilePicUrl = userDoc['profilePicUrl'] ?? ''; // Use the correct field name
         _fullName =
             "${userDoc['firstName'] ?? ''} ${userDoc['lastName'] ?? ''}".trim();
+            print("Full name: $_fullName");
         _hostelID = userDoc['hostelID'] ?? 'Hostel ID not found';
+        print('HOstel ID: $_hostelID');
         _userDataLoaded = true;
       });
     } catch (e) {
