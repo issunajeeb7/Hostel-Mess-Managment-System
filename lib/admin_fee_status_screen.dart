@@ -12,6 +12,27 @@ class AdminFeeStatusScreen extends StatefulWidget {
 class _AdminFeeStatusScreenState extends State<AdminFeeStatusScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final DateTime currentDate = DateTime.now(); // Get the current date
+  TextEditingController searchController =
+      TextEditingController(); // Controller for search input
+  String filter = '';
+
+  @override
+  void initState() {
+    super.initState();
+    searchController.addListener(() {
+      setState(() {
+        filter = searchController
+            .text; // Update the filter whenever the input changes
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    searchController
+        .dispose(); // Dispose the controller when the widget is disposed
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,77 +42,173 @@ class _AdminFeeStatusScreenState extends State<AdminFeeStatusScreen> {
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: _firestore
-            .collection('users')
-            .snapshots(), // Listen to 'users' collection
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (!snapshot.hasData) {
-            return const Center(child: Text("No data available."));
-          }
-
-          List<DocumentSnapshot> userDocs =
-              snapshot.data!.docs; // Define userDocs here
-
-          return CustomScrollView(
-            slivers: [
-              SliverList(
-                delegate: SliverChildListDelegate(
-                  [
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 16),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFFF9EA),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: const ListTile(
-                        title: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Expanded(
-                              child: Center(
-                                child: Text(
-                                  'Name',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(fontWeight: FontWeight.w500),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Center(
-                                child: Text(
-                                  'ID',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(fontWeight: FontWeight.w500),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Center(
-                                child: Text(
-                                  'Payment Status',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(fontWeight: FontWeight.w500),
-                                ),
-                              ),
-                            ),
-                          ],
+      
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Container(
+              width: 365.0,
+              height: 45.0,
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(50.0),
+                color: const Color.fromARGB(20, 251, 196, 44),
+              ),
+              child: Center(
+                child: TextFormField(
+                  controller: searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Search...',
+                    hintStyle: GoogleFonts.nunitoSans(
+                      color: const Color.fromARGB(255, 177, 177, 177),
+                      fontSize: 16.0,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding:
+                        const EdgeInsets.fromLTRB(35.0, 0.0, 35.0, 0.0),
+                    suffixIcon: Transform.translate(
+                      offset: const Offset(-20.0, 0.0),
+                      child: Transform.scale(
+                        scale: 0.5,
+                        child: Image.asset(
+                          'assets/search.png',
                         ),
                       ),
                     ),
-                    const SizedBox(
-                        height: 10), // Spacing between header and list
-                  ],
+                  ),
+                  style: GoogleFonts.nunitoSans(
+                    fontSize: 16.0,
+                    color: Colors.black, // Adjust text color
+                  ),
+                  textAlignVertical: TextAlignVertical.center,
                 ),
               ),
-              SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
+            ),
+          ),
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: _firestore.collection('users').snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (!snapshot.hasData) {
+                  return const Center(child: Text("No data available."));
+                }
+
+                List<DocumentSnapshot> userDocs = snapshot.data!.docs;
+                if (filter.isNotEmpty) {
+                  userDocs = userDocs.where((doc) {
+                    var userData = doc.data() as Map<String, dynamic>;
+                    // Combine the first name and last name to create the full name.
+                    String fullName =
+                        "${userData['firstName']} ${userData['lastName']}";
+                    // Get the hostel ID from the user data.
+                    String hostelID = userData['hostelID'] ?? '';
+
+                    // Check if the filter is contained in either the full name or the hostel ID.
+                    // The search is case-insensitive.
+                    return fullName
+                            .toLowerCase()
+                            .contains(filter.toLowerCase()) ||
+                        hostelID.toLowerCase().contains(filter.toLowerCase());
+                  }).toList();
+                }
+                
+                 return userDocs.isEmpty // Check if no results found
+                 
+                    ? SingleChildScrollView(
+                      // physics: const NeverScrollableScrollPhysics(),
+                      child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            
+                            children: [
+                              const SizedBox(height: 100,),
+                              Image.asset(
+                                'assets/noresults.jpg', // Change to your image path
+                                width: 300, // Set the width as per your requirement
+                                height: 300, // Set the height as per your requirement
+                              ),
+                              
+                              Text(
+                                'OOPS!',
+                                style: GoogleFonts.nunitoSans(
+                                  fontSize: 40,
+                                  color: Color(0xFFFBC32C),
+                                  fontWeight: FontWeight.w800,
+                                  
+                                ),
+                              ),
+                              
+                              Text(
+                                'No results found, try searching again.',
+                                style: GoogleFonts.nunitoSans(
+                                  fontSize: 16,
+                                  color: Color.fromARGB(255, 63, 63, 63),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    )
+
+                : ListView.builder(
+                  itemCount:
+                      userDocs.length + 1, // Add one for the headings row
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      // This is the headings row
+                      return Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF9EA),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: ListTile(
+                          title: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Expanded(
+                                child: Center(
+                                  child: Text(
+                                    'Name',
+                                    textAlign: TextAlign.center,
+                                    style: GoogleFonts.nunitoSans(
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: Center(
+                                  child: Text(
+                                    'ID',
+                                    textAlign: TextAlign.center,
+                                    style: GoogleFonts.nunitoSans(
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: Center(
+                                  child: Text(
+                                    'Payment Status',
+                                    textAlign: TextAlign.center,
+                                    style: GoogleFonts.nunitoSans(
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+
+                    // Now handle the user data
                     var userData =
-                        userDocs[index].data() as Map<String, dynamic>;
+                        userDocs[index - 1].data() as Map<String, dynamic>;
                     if (userData['role'] != 'Hosteller') {
                       return Container(); // Skip non-hostellers
                     }
@@ -99,7 +216,7 @@ class _AdminFeeStatusScreenState extends State<AdminFeeStatusScreen> {
                     String fullName =
                         "${userData['firstName']} ${userData['lastName']}";
                     String hostelID = userData['hostelID'];
-                    String userId = userDocs[index].id;
+                    String userId = userDocs[index - 1].id;
 
                     // Get the current year and month
                     int currentYear = currentDate.year;
@@ -108,9 +225,7 @@ class _AdminFeeStatusScreenState extends State<AdminFeeStatusScreen> {
                     String currentYearMonth =
                         '$currentYear-${currentMonth.toString().padLeft(2, '0')}';
                     print('Date: $currentYearMonth');
-                    // print('Checking date range: $currentYearMonth-01 to $currentYearMonth-32');
 
-                    print('Querying for userId: $userId');
                     return FutureBuilder<DocumentSnapshot?>(
                       future: _firestore
                           .collection('feePayment')
@@ -118,49 +233,38 @@ class _AdminFeeStatusScreenState extends State<AdminFeeStatusScreen> {
                           .get()
                           .then((querySnapshot) {
                         if (querySnapshot.docs.isNotEmpty) {
-                          // Iterate through the documents to find a matching date
                           for (var doc in querySnapshot.docs) {
                             var feePaymentData =
                                 doc.data() as Map<String, dynamic>;
                             String feePaymentDate =
                                 feePaymentData['date'] as String;
 
-                            // Parse the date string to remove the day part
-                            String yearMonthOnly = feePaymentDate.substring(
-                                0, 7); // Extract 'yyyy-MM'
+                            String yearMonthOnly =
+                                feePaymentDate.substring(0, 7);
 
-                            // Compare the extracted year and month with currentYearMonth
                             if (yearMonthOnly == currentYearMonth) {
-                              // Payment for the current year and month found
-                              return doc; // Return the matching document
+                              return doc;
                             }
                           }
                         }
-
-                        // Return null when there is no matching payment
                         return null;
                       }),
                       builder: (context, paymentSnapshot) {
                         if (paymentSnapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return Container(); // Return an empty container while waiting
+                          return Container();
                         }
 
                         bool isPaid = paymentSnapshot.hasData;
 
-                        // Handle the case when paymentSnapshot.data is null
                         if (paymentSnapshot.data == null) {
-                          // No matching payment record, set isPaid to false
                           isPaid = false;
                         }
 
                         return Padding(
-                          // Wrap the ListTile with Padding to add vertical space
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 3), // Add vertical padding
+                          padding: const EdgeInsets.symmetric(vertical: 3),
                           child: Container(
-                            margin: const EdgeInsets.symmetric(
-                                horizontal: 16), // Add margin
+                            margin: const EdgeInsets.symmetric(horizontal: 16),
                             decoration: BoxDecoration(
                               color: const Color(0xFFFFF9EA),
                               borderRadius: BorderRadius.circular(14),
@@ -216,12 +320,11 @@ class _AdminFeeStatusScreenState extends State<AdminFeeStatusScreen> {
                       },
                     );
                   },
-                  childCount: userDocs.length,
-                ),
-              ),
-            ],
-          );
-        },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

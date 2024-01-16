@@ -63,6 +63,6 @@ class DefaultFirebaseOptions {
     messagingSenderId: '666153683478',
     projectId: 'hostel-mess-managment-system',
     storageBucket: 'hostel-mess-managment-system.appspot.com',
-    iosBundleId: 'com.example.login',
+    iosBundleId: 'com.messbytes',
   );
 }
