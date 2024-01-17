@@ -7,7 +7,9 @@ import 'login_screen.dart';
 import 'registration_screen.dart';
 import 'get_started_screen.dart';
 import 'main_screen.dart';
-import 'profile_screen.dart'; // Make sure you have created this file
+import 'profile_screen.dart';
+import 'package:flutter/services.dart';
+ // Make sure you have created this file
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,6 +17,9 @@ void main() async {
     options: DefaultFirebaseOptions.android,
   );
   runApp(const MyApp());
+   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    systemNavigationBarColor: Color(0xFFFBC32C), // Set the desired color here
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -23,6 +28,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
+  debugShowMaterialGrid: false,
       title: 'Firebase Auth Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,

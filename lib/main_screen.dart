@@ -107,29 +107,36 @@ class _MainScreenState extends State<MainScreen> {
     }
 
     return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: screens,
-      ),
-      bottomNavigationBar: Theme(
-        data: Theme.of(context).copyWith(
-          splashColor: Colors.transparent, // Set splash color to transparent
-          highlightColor:
-              Colors.transparent, // Set highlight color to transparent
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: IndexedStack(
+                index: _selectedIndex,
+                children: screens,
+              ),
+            ),
+          ],
         ),
-        child: BottomNavigationBar(
-          items: bottomItems,
-          currentIndex: _selectedIndex,
-          onTap: (index) => setState(() => _selectedIndex = index),
-          selectedItemColor: Colors.black, // Color for the selected item
-          unselectedItemColor: Colors.grey, // Color for the unselected item
-          backgroundColor: Color(0xFFFBC32C), // The background color
-          type: BottomNavigationBarType
-              .fixed, // This ensures all items are fixed to the bottom bar
-          showSelectedLabels:
-              false, // This will hide the label text for selected items
-          showUnselectedLabels:
-              false, // This will hide the label text for unselected items
+      ),
+      bottomNavigationBar: SizedBox(
+        height: 64,
+        child: Theme(
+          data: Theme.of(context).copyWith(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+          ),
+          child: BottomNavigationBar(
+            items: bottomItems,
+            currentIndex: _selectedIndex,
+            onTap: (index) => setState(() => _selectedIndex = index),
+            selectedItemColor: Colors.black,
+            unselectedItemColor: Colors.grey,
+            backgroundColor: Color(0xFFFBC32C),
+            type: BottomNavigationBarType.fixed,
+            showSelectedLabels: false,
+            showUnselectedLabels: false,
+          ),
         ),
       ),
     );

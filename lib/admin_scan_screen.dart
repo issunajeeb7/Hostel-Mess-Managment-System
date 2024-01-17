@@ -14,7 +14,7 @@ class AdminScanScreen extends StatefulWidget {
   _AdminScanScreenState createState() => _AdminScanScreenState();
 }
 
-class _AdminScanScreenState extends State<AdminScanScreen> {
+class _AdminScanScreenState extends State<AdminScanScreen>  {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   late QRViewController controller;
   bool scanned = false;
@@ -27,6 +27,7 @@ class _AdminScanScreenState extends State<AdminScanScreen> {
       StreamController<int>.broadcast(); // Make it a broadcast stream controller
 
   Stream<int> get counterStream => _counterStreamController.stream;
+  
 
   @override
   void dispose() {
