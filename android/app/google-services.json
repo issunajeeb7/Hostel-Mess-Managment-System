@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:666153683478:android:b6c5423dd37e1dbc2c4337",
         "android_client_info": {
-          "package_name": "com.messbytes"
+          "package_name": "com.example.login"
         }
       },
       "oauth_client": [],
@@ -29,6 +29,25 @@
         "mobilesdk_app_id": "1:666153683478:android:1ed54d25495d46ce2c4337",
         "android_client_info": {
           "package_name": "com.example.project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQgN-tNVmFcPleRf-Z0kc7UZnvHtLap9I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:666153683478:android:f1461ba60ac4997e2c4337",
+        "android_client_info": {
+          "package_name": "com.messbytes"
         }
       },
       "oauth_client": [],

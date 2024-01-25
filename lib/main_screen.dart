@@ -6,6 +6,7 @@ import 'claimed_voucher_screen.dart';
 import 'share_meal_screen.dart';
 import 'fee_payment_screen.dart';
 import 'admin_fee_status_screen.dart';
+import 'admin_poll_create_screen.dart';
 
 class MainScreen extends StatefulWidget {
   final int initialIndex;
@@ -51,6 +52,8 @@ class _MainScreenState extends State<MainScreen> {
       screens = [
         AdminScanScreen(),
         AdminFeeStatusScreen(),
+        CreatePollScreen(),
+
         // Add more admin-specific screens here
       ];
       bottomItems = [
@@ -60,6 +63,10 @@ class _MainScreenState extends State<MainScreen> {
         ),
         BottomNavigationBarItem(
           icon: _loadIcon('dollar', _selectedIndex == 1),
+          label: 'Other',
+        ),
+        BottomNavigationBarItem(
+          icon: _loadIcon('poll', _selectedIndex == 2),
           label: 'Other',
         ),
         // Add more items for admin-specific features here

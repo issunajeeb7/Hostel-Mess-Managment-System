@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -28,10 +25,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for windows - '
@@ -49,9 +43,19 @@ class DefaultFirebaseOptions {
     }
   }
 
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyAkUWKpCE4bq-IisEgspdWN5i0f3OmWyg0',
+    appId: '1:666153683478:web:9c247f932cec2da82c4337',
+    messagingSenderId: '666153683478',
+    projectId: 'hostel-mess-managment-system',
+    authDomain: 'hostel-mess-managment-system.firebaseapp.com',
+    storageBucket: 'hostel-mess-managment-system.appspot.com',
+    measurementId: 'G-5HLRHB97R7',
+  );
+
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBQgN-tNVmFcPleRf-Z0kc7UZnvHtLap9I',
-    appId: '1:666153683478:android:b6c5423dd37e1dbc2c4337',
+    appId: '1:666153683478:android:f1461ba60ac4997e2c4337',
     messagingSenderId: '666153683478',
     projectId: 'hostel-mess-managment-system',
     storageBucket: 'hostel-mess-managment-system.appspot.com',
@@ -59,10 +63,19 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyAU-RvI0orxUwZSgCW68zpENXC9Shf0w04',
-    appId: '1:666153683478:ios:b11c30790819e3262c4337',
+    appId: '1:666153683478:ios:98beae28966f60cd2c4337',
     messagingSenderId: '666153683478',
     projectId: 'hostel-mess-managment-system',
     storageBucket: 'hostel-mess-managment-system.appspot.com',
     iosBundleId: 'com.messbytes',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyAU-RvI0orxUwZSgCW68zpENXC9Shf0w04',
+    appId: '1:666153683478:ios:4d80f977032a39e02c4337',
+    messagingSenderId: '666153683478',
+    projectId: 'hostel-mess-managment-system',
+    storageBucket: 'hostel-mess-managment-system.appspot.com',
+    iosBundleId: 'com.messbytes.RunnerTests',
   );
 }
