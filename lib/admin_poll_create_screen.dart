@@ -12,10 +12,25 @@ class _CreatePollScreenState extends State<CreatePollScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // Variables to store selected food items
-  String selectedBreakfast = "";
-  String selectedLunch = "";
-  String selectedSnack = "";
-  String selectedDinner = "";
+  Map<String, List<String>> selectedFoodOptions = {
+    'Breakfast': [],
+    'Lunch': [],
+    'Snack': [],
+    'Dinner': [],
+  };
+
+  // Function to toggle between "Add" and "Added"
+  void toggleAdd(String meal, String foodOption) {
+    setState(() {
+      if (selectedFoodOptions[meal]!.contains(foodOption)) {
+        // If the item is already added, remove it
+        selectedFoodOptions[meal]!.remove(foodOption);
+      } else {
+        // If the item is not added, add it
+        selectedFoodOptions[meal]!.add(foodOption);
+      }
+    });
+  }
 
   // Function to send poll options to Firestore
   Future<void> createPoll() async {
@@ -30,10 +45,10 @@ class _CreatePollScreenState extends State<CreatePollScreen> {
       // Add poll options to Firestore
       await pollOptions.add({
         'Date': currentDate,
-        'Breakfast': selectedBreakfast,
-        'Lunch': selectedLunch,
-        'Snack': selectedSnack,
-        'Dinner': selectedDinner,
+        'Breakfast': selectedFoodOptions['Breakfast'],
+        'Lunch': selectedFoodOptions['Lunch'],
+        'Snack': selectedFoodOptions['Snack'],
+        'Dinner': selectedFoodOptions['Dinner'],
       });
 
       // Display a success message
@@ -53,73 +68,67 @@ class _CreatePollScreenState extends State<CreatePollScreen> {
     }
   }
 
+  // Function to build a food option widget
+  Widget buildFoodOption(String meal, String foodOption) {
+    bool isAdded = selectedFoodOptions[meal]!.contains(foodOption);
+
+    return ListTile(
+      title: Text(foodOption),
+      trailing: ElevatedButton(
+        onPressed: () {
+          toggleAdd(meal, foodOption);
+        },
+        child: Text(isAdded ? 'Added' : 'Add'),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Create Poll'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Dropdown for Breakfast
-            DropDown(
-              items: ['Food 1', 'Food 2', 'Food 3'], // Add your food items
-              hint: const Text('Select Breakfast'),
-              onChanged: (value) {
-                setState(() {
-                  selectedBreakfast = value ?? "";
-                });
-              },
-            ),
-            const SizedBox(height: 16.0),
-
-            // Dropdown for Lunch
-            DropDown(
-              items: ['Food 1', 'Food 2', 'Food 3'], // Add your food items
-              hint: const Text('Select Lunch'),
-              onChanged: (value) {
-                setState(() {
-                  selectedLunch = value ?? "";
-                });
-              },
-            ),
-            const SizedBox(height: 16.0),
-
-            // Dropdown for Snack
-            DropDown(
-              items: ['Food 1', 'Food 2', 'Food 3'], // Add your food items
-              hint: const Text('Select Snack'),
-              onChanged: (value) {
-                setState(() {
-                  selectedSnack = value ?? "";
-                });
-              },
-            ),
-            const SizedBox(height: 16.0),
-
-            // Dropdown for Dinner
-            DropDown(
-              items: ['Food 1', 'Food 2', 'Food 3'], // Add your food items
-              hint: const Text('Select Dinner'),
-              onChanged: (value) {
-                setState(() {
-                  selectedDinner = value ?? "";
-                });
-              },
-            ),
-            const SizedBox(height: 16.0),
-
-            // Button to create poll
-            ElevatedButton(
-              onPressed: () {
-                createPoll();
-              },
-              child: const Text('Create Poll'),
-            ),
-          ],
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (String meal in selectedFoodOptions.keys)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      meal,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 8.0),
+                    Column(
+                      children: [
+                        for (String foodOption in [
+                          'Food 1',
+                          'Food 2',
+                          'Food 3'
+                        ])
+                          buildFoodOption(meal, foodOption),
+                      ],
+                    ),
+                    SizedBox(height: 16.0),
+                  ],
+                ),
+              ElevatedButton(
+                onPressed: () {
+                  createPoll();
+                },
+                child: const Text('Create Poll'),
+              ),
+            ],
+          ),
         ),
       ),
     );
