@@ -127,7 +127,7 @@ class _MainScreenState extends State<MainScreen> {
         ),
       ),
       bottomNavigationBar: SizedBox(
-        height: 64,
+        height: 65,
         child: Theme(
           data: Theme.of(context).copyWith(
             splashColor: Colors.transparent,
