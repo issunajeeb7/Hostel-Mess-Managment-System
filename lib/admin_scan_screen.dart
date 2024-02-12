@@ -4,6 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
+
 
 class AdminScanScreen extends StatefulWidget {
   const AdminScanScreen({Key? key}) : super(key: key);
@@ -26,6 +28,7 @@ class _AdminScanScreenState extends State<AdminScanScreen>
       StreamController<int>.broadcast();
 
   Stream<int> get counterStream => _counterStreamController.stream;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   void initState() {
@@ -33,20 +36,27 @@ class _AdminScanScreenState extends State<AdminScanScreen>
     WidgetsBinding.instance.addObserver(this);
   }
 
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+@override
+void dispose() {
+  print("Dispose methid is called");
+  WidgetsBinding.instance.removeObserver(this);
+  // Ensure the camera is stopped and disposed of
+  if (controller != null) {
     controller.dispose();
-    audioPlayer.dispose();
-    _counterStreamController.close();
-    super.dispose();
-  }
+    print('Controller disposed');
 
-  @override
-  void deactivate() {
-    super.deactivate();
-    controller.pauseCamera();
+    
   }
+  else{
+    print('Controller is null, cannot dispose');
+  }
+  audioPlayer.dispose();
+  _counterStreamController.close();
+  super.dispose();
+}
+
+// Removed deactivate() method as it's no longer needed
+
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -65,8 +75,17 @@ class _AdminScanScreenState extends State<AdminScanScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Admin Scan'),
+     appBar: AppBar(
+        title: const Text('Attendance'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await _auth.signOut();
+              Navigator.of(context).pushReplacementNamed('/login');
+            },
+          ),
+        ],
       ),
       body: Column(
         children: <Widget>[

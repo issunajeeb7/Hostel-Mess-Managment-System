@@ -35,25 +35,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _fetchUserData();
   }
 
-  Future<void> _fetchUserData() async {
-    try {
-      // Fetch user document
-      final userDoc = await _firestore.collection('users').doc(widget.userId).get();
+Future<void> _fetchUserData() async {
+  try {
+    // Fetch user document
+    final userDoc = await _firestore.collection('users').doc(widget.userId).get();
 
-      // Update _profilePicUrl
+    // Update _fullName and _hostelID
+    _fullName = "${userDoc['firstName'] ?? ''} ${userDoc['lastName'] ?? ''}".trim();
+    print("Full name: $_fullName");
+    _hostelID = userDoc['hostelID'] ?? 'Hostel ID not found';
+    print('Hostel ID: $_hostelID');
+
+    // Check if profilePicUrl field exists before setting _profilePicUrl
+    if (userDoc.data()!.containsKey('profilePicUrl')) {
       setState(() {
-        _profilePicUrl = userDoc['profilePicUrl'] ?? ''; // Use the correct field name
-        _fullName =
-            "${userDoc['firstName'] ?? ''} ${userDoc['lastName'] ?? ''}".trim();
-            print("Full name: $_fullName");
-        _hostelID = userDoc['hostelID'] ?? 'Hostel ID not found';
-        print('HOstel ID: $_hostelID');
-        _userDataLoaded = true;
+        _profilePicUrl = userDoc['profilePicUrl'];
       });
-    } catch (e) {
-      print('Error fetching user data: $e');
     }
+
+    // Set _userDataLoaded to true after fetching data
+    setState(() {
+      _userDataLoaded = true;
+    });
+  } catch (e) {
+    print('Error fetching user data: $e');
   }
+}
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -89,40 +98,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 onTap: () async {
                   await _pickAndCropImage();
                 },
-                child: CachedNetworkImage(
-                  key: _circleAvatarKey,
-                  imageUrl: _profilePicUrl.isNotEmpty
-                      ? _profilePicUrl
-                      : 'assets/default_profile_pic.png',
-                  placeholder: (context, url) =>
-                      CircularProgressIndicator(), // Placeholder while loading
-                  errorWidget: (context, url, error) =>
-                      Icon(Icons.error), // Widget to display on error
-                  imageBuilder: (context, imageProvider) => CircleAvatar(
-                    radius: 50.0,
-                    backgroundImage: imageProvider,
-                  ),
+                child: Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 50.0,
+                      backgroundImage: _profilePicUrl.isNotEmpty
+                          ? CachedNetworkImageProvider(_profilePicUrl)
+                          : AssetImage('assets/default_profile_pic.png')
+                              as ImageProvider,
+                    ),
+                    if (_profilePicUrl.isEmpty)
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Color.fromARGB(255, 255, 255, 255),
+                          ),
+                          child: Icon(
+                            Icons.create_rounded,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
               const SizedBox(height: 16.0),
-
-              if (_userDataLoaded)
-                Column(
-                  children: <Widget>[
-                    Text(
-                      _fullName.isNotEmpty ? _fullName : 'Name not found',
-                      style: GoogleFonts.nunitoSans(
-                          fontSize: 20, fontWeight: FontWeight.w500),
-                    ),
-                    Text(
-                      _hostelID,
-                      style: GoogleFonts.nunitoSans(fontSize: 18),
-                    ),
-                  ],
-                )
-              else
-                const CircularProgressIndicator(),
-
+              Column(
+                children: <Widget>[
+                  Text(
+                    _fullName.isNotEmpty ? _fullName : 'Name not found',
+                    style: GoogleFonts.nunitoSans(
+                        fontSize: 20, fontWeight: FontWeight.w500),
+                  ),
+                  Text(
+                    _hostelID,
+                    style: GoogleFonts.nunitoSans(fontSize: 18),
+                  ),
+                ],
+              ),
               const SizedBox(height: 24.0),
               QrImageView(
                 data: 'Userid:${widget.userId}',

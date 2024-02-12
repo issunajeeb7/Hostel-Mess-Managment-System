@@ -72,7 +72,7 @@ class _AdminFeeStatusScreenState extends State<AdminFeeStatusScreen> {
                         hintText: 'Search...',
                         hintStyle: GoogleFonts.nunitoSans(
                           color: const Color.fromARGB(255, 177, 177, 177),
-                          fontSize: 19.0,
+                          fontSize: 17.0,
                         ),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(

@@ -39,7 +39,7 @@ class _MainScreenState extends State<MainScreen> {
       'assets/$iconName${isSelected ? '' : '_outlined'}.png',
       width: iconSize,
       height: iconSize,
-      color: isSelected ? Colors.black : Color.fromARGB(255, 0, 0, 0),
+      color: isSelected ? Colors.black : const Color.fromARGB(255, 0, 0, 0),
     );
   }
 
@@ -50,8 +50,8 @@ class _MainScreenState extends State<MainScreen> {
 
     if (widget.userRole == 'admin') {
       screens = [
-        AdminScanScreen(),
-        AdminFeeStatusScreen(),
+        const AdminScanScreen(),
+        const AdminFeeStatusScreen(),
         CreatePollScreen(),
 
         // Add more admin-specific screens here
@@ -113,6 +113,29 @@ class _MainScreenState extends State<MainScreen> {
       ];
     }
 
+    // Define the color of the yellow square
+    final activeIconColor = const Color(0xFFFBC32C);
+
+    // Define the size of the rounded square
+    // final squareSize = 36.0; // The size of the square
+
+    // Create a function to wrap an icon with a yellow square if it's selected
+    Widget _wrapIcon(Widget icon, bool isSelected) {
+      return isSelected
+          ? Container(
+              width: 45,
+              height: 40,
+              padding: const EdgeInsets.all(0),
+              decoration: BoxDecoration(
+                color: activeIconColor,
+                borderRadius:
+                    BorderRadius.circular(10), // Adjust for rounded corners
+              ),
+              child: Center(child: icon),
+            )
+          : icon;
+    }
+
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -123,27 +146,36 @@ class _MainScreenState extends State<MainScreen> {
                 children: screens,
               ),
             ),
+            const SizedBox(
+                height:
+                    10), // Add a small space between the body and the bottom navigation bar
           ],
         ),
       ),
-      bottomNavigationBar: SizedBox(
-        height: 65,
-        child: Theme(
-          data: Theme.of(context).copyWith(
-            splashColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-          ),
-          child: BottomNavigationBar(
-            items: bottomItems,
-            currentIndex: _selectedIndex,
-            onTap: (index) => setState(() => _selectedIndex = index),
-            selectedItemColor: Colors.black,
-            unselectedItemColor: Colors.grey,
-            backgroundColor: Color(0xFFFBC32C),
-            type: BottomNavigationBarType.fixed,
-            showSelectedLabels: false,
-            showUnselectedLabels: false,
-          ),
+      bottomNavigationBar: Theme(
+        data: Theme.of(context).copyWith(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+        ),
+        child: BottomNavigationBar(
+          
+          items: bottomItems.map((item) {
+            final index = bottomItems.indexOf(item);
+            // Wrap the icon with a yellow square if it's selected
+            return BottomNavigationBarItem(
+              icon: _wrapIcon(item.icon, _selectedIndex == index),
+              label: item.label,
+            );
+          }).toList(),
+          currentIndex: _selectedIndex,
+          onTap: (index) => setState(() => _selectedIndex = index),
+          selectedItemColor: Colors.black,
+          unselectedItemColor: Colors.grey,
+          backgroundColor: Colors.white,
+          type: BottomNavigationBarType.fixed,
+          showSelectedLabels: false,
+          showUnselectedLabels: false,
+          // elevation: 0, // Remove the shadow to prevent additional padding
         ),
       ),
     );

@@ -10,6 +10,7 @@ import 'main_screen.dart';
 import 'profile_screen.dart';
 import 'package:flutter/services.dart';
  // Make sure you have created this file
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,7 +19,7 @@ void main() async {
   );
   runApp(const MyApp());
    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    systemNavigationBarColor: Color(0xFFFBC32C), // Set the desired color here
+    systemNavigationBarColor: Color.fromARGB(255, 255, 255, 255), // Set the desired color here
   ));
 }
 
@@ -28,6 +29,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorObservers: [routeObserver],
       debugShowCheckedModeBanner: false,
   debugShowMaterialGrid: false,
       title: 'Firebase Auth Demo',
