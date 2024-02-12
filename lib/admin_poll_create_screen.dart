@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CreatePollScreen extends StatefulWidget {
   @override
@@ -9,6 +10,7 @@ class CreatePollScreen extends StatefulWidget {
 
 class _CreatePollScreenState extends State<CreatePollScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  late SharedPreferences _prefs;
 
   Map<String, List<String>> selectedFoodOptions = {
     'Breakfast': [],
@@ -33,14 +35,50 @@ class _CreatePollScreenState extends State<CreatePollScreen> {
 
   bool isCreatePollButtonEnabled = false;
 
+  @override
+  void initState() {
+    super.initState();
+    initPreferences();
+  }
+
+  Future<void> initPreferences() async {
+    _prefs = await SharedPreferences.getInstance();
+    checkLastPollTime();
+  }
+
+  void checkLastPollTime() {
+    final lastPollTime = _prefs.getInt('lastPollTime') ?? 0;
+    final currentTime = DateTime.now().millisecondsSinceEpoch;
+
+    if (currentTime - lastPollTime <
+        Duration.hoursPerDay * Duration.millisecondsPerHour) {
+      disableCreatePollButton();
+    }
+  }
+
+  void disableCreatePollButton() {
+    setState(() {
+      isCreatePollButtonEnabled = false;
+    });
+  }
+
+  void enableCreatePollButton() {
+    setState(() {
+      isCreatePollButtonEnabled = true;
+    });
+  }
+
+  Future<void> setLastPollTime() async {
+    final currentTime = DateTime.now().millisecondsSinceEpoch;
+    await _prefs.setInt('lastPollTime', currentTime);
+  }
+
   void toggleAdd(String meal, String foodOption) {
     setState(() {
       if (userFoodOptionControllers[meal]!.text.isNotEmpty) {
-        // For user-provided options, add the new option without clearing existing ones
         selectedFoodOptions[meal]!.add(userFoodOptionControllers[meal]!.text);
         additionalFoodOptions[meal]!.add(userFoodOptionControllers[meal]!.text);
       } else {
-        // For predefined options, toggle the selection
         if (selectedFoodOptions[meal]!.contains(foodOption)) {
           selectedFoodOptions[meal]!.remove(foodOption);
         } else {
@@ -48,7 +86,6 @@ class _CreatePollScreenState extends State<CreatePollScreen> {
         }
       }
 
-      // Update the button status
       isCreatePollButtonEnabled = isButtonEnabled();
     });
   }
@@ -64,7 +101,6 @@ class _CreatePollScreenState extends State<CreatePollScreen> {
 
   Future<void> createPoll() async {
     try {
-      // Check if at least one option is selected for each meal
       for (String meal in selectedFoodOptions.keys) {
         if (selectedFoodOptions[meal]!.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -76,9 +112,23 @@ class _CreatePollScreenState extends State<CreatePollScreen> {
         }
       }
 
+      final lastPollTime = _prefs.getInt('lastPollTime') ?? 0;
+      final currentTime = DateTime.now().millisecondsSinceEpoch;
+
+      if (currentTime - lastPollTime <
+          Duration.hoursPerDay * Duration.millisecondsPerHour) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'You can create a new poll only once in a week',
+            ),
+          ),
+        );
+        return;
+      }
+
       String currentDate =
           DateTime.now().toLocal().toIso8601String().split('T')[0];
-
       CollectionReference pollOptions = _firestore.collection('pollOptions');
 
       await pollOptions.add({
@@ -95,12 +145,10 @@ class _CreatePollScreenState extends State<CreatePollScreen> {
         ),
       );
 
-      // Clear user-provided food options after creating poll
       for (var controller in userFoodOptionControllers.values) {
         controller.clear();
       }
 
-      // Reset selectedFoodOptions
       selectedFoodOptions = {
         'Breakfast': [],
         'Lunch': [],
@@ -108,8 +156,8 @@ class _CreatePollScreenState extends State<CreatePollScreen> {
         'Dinner': [],
       };
 
-      // Update the button status
-      isCreatePollButtonEnabled = isButtonEnabled();
+      isCreatePollButtonEnabled = false; // Disable button after creating poll
+      setLastPollTime(); // Set timestamp for the last poll
     } catch (e) {
       print('Error creating poll: $e');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -138,14 +186,14 @@ class _CreatePollScreenState extends State<CreatePollScreen> {
               ),
               child: Text(
                 foodOption,
-                style: TextStyle(
+                style: GoogleFonts.nunitoSans(
                   fontSize: 16.0,
                 ),
               ),
             ),
           ),
           Container(
-            height: 35.0, // Adjusted height
+            height: 35.0,
             child: ElevatedButton(
               onPressed: () {
                 toggleAdd(meal, foodOption);
@@ -189,28 +237,27 @@ class _CreatePollScreenState extends State<CreatePollScreen> {
                   controller: controller,
                   decoration: InputDecoration(
                     border: InputBorder.none,
-                    hintText: 'Add Item...', // Placeholder text
-                    hintStyle: TextStyle(color: Color(0xFFBFBDBD)),
+                    hintText: 'Add Item...',
+                    hintStyle: GoogleFonts.nunitoSans(
+                      fontSize: 16.0,
+                      color: Color(0xFFBFBDBD),
+                    ),
                     contentPadding: EdgeInsets.symmetric(vertical: 8.0),
-                    // // Set hint color
                   ),
-                  style: TextStyle(
+                  style: GoogleFonts.nunitoSans(
                     fontSize: 16.0,
                   ),
-                  onChanged: (value) {
-                    // No need to set the text here
-                  },
+                  onChanged: (value) {},
                 ),
               ),
             ),
           ),
           Container(
-            height: 35.0, // Adjusted height
+            height: 35.0,
             child: ElevatedButton(
               onPressed: () {
                 if (controller.text.isNotEmpty) {
                   toggleAdd(meal, controller.text);
-                  // Create a new TextEditingController for a new item
                   userFoodOptionControllers[meal] = TextEditingController();
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -256,14 +303,14 @@ class _CreatePollScreenState extends State<CreatePollScreen> {
               ),
               child: Text(
                 foodOption,
-                style: TextStyle(
+                style: GoogleFonts.nunitoSans(
                   fontSize: 16.0,
                 ),
               ),
             ),
           ),
           Container(
-            height: 35.0, // Adjusted height
+            height: 35.0,
             child: ElevatedButton(
               onPressed: () {
                 toggleAdd(meal, foodOption);
@@ -290,7 +337,12 @@ class _CreatePollScreenState extends State<CreatePollScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Poll'),
+        title: Text(
+          'Create Poll',
+          style: GoogleFonts.nunitoSans(
+            fontSize: 20.0,
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -305,7 +357,7 @@ class _CreatePollScreenState extends State<CreatePollScreen> {
                   children: [
                     Text(
                       meal,
-                      style: TextStyle(
+                      style: GoogleFonts.nunitoSans(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
@@ -317,11 +369,9 @@ class _CreatePollScreenState extends State<CreatePollScreen> {
                           buildFoodOption(meal, foodOption),
                       ],
                     ),
-                    // Additional food options
                     for (String additionalOption
                         in additionalFoodOptions[meal]!)
                       buildAdditionalFoodOption(meal, additionalOption),
-                    // User-provided food option
                     buildUserFoodOption(meal),
                     SizedBox(height: 16.0),
                   ],
@@ -368,28 +418,24 @@ class _CreatePollScreenState extends State<CreatePollScreen> {
           'Omelette',
           'Pancakes',
           'Avocado Toast',
-          //...additionalFoodOptions[meal]!,
         ];
       case 'Lunch':
         return [
           'Grilled Chicken Salad',
           'Pasta Carbonara',
           'Veggie Wrap',
-          //...additionalFoodOptions[meal]!,
         ];
       case 'Snack':
         return [
           'Fruit Salad',
           'Hummus with Veggie Sticks',
           'Trail Mix',
-          //...additionalFoodOptions[meal]!,
         ];
       case 'Dinner':
         return [
           'Salmon with Asparagus',
           'Vegetable Stir-Fry',
           'Baked Ziti',
-          //...additionalFoodOptions[meal]!,
         ];
       default:
         return [];
