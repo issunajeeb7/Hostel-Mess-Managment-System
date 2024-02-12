@@ -9,7 +9,7 @@ import 'get_started_screen.dart';
 import 'main_screen.dart';
 import 'profile_screen.dart';
 import 'package:flutter/services.dart';
- // Make sure you have created this file
+// Make sure you have created this file
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
 void main() async {
@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       navigatorObservers: [routeObserver],
       debugShowCheckedModeBanner: false,
-  debugShowMaterialGrid: false,
+      debugShowMaterialGrid: false,
       title: 'Firebase Auth Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
       home: const LandingPage(),
       routes: {
         '/login': (context) => const LoginScreen(),
-        '/register': (context) =>  RegistrationScreen(),
+        '/register': (context) => RegistrationScreen(),
       },
     );
   }
@@ -57,7 +57,10 @@ class LandingPage extends StatelessWidget {
           if (snapshot.data != null) {
             // Check the role of the user in Firestore
             return FutureBuilder<DocumentSnapshot>(
-              future: FirebaseFirestore.instance.collection('users').doc(snapshot.data!.uid).get(),
+              future: FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(snapshot.data!.uid)
+                  .get(),
               builder: (context, roleSnapshot) {
                 if (roleSnapshot.connectionState == ConnectionState.waiting) {
                   // Still waiting for data, show a loading indicator
@@ -107,4 +110,3 @@ class LandingPage extends StatelessWidget {
     );
   }
 }
-

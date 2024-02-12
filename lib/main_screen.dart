@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mess_bytes/polling_screen.dart';
 import 'admin_scan_screen.dart';
 import 'voucher_market_place_screen.dart';
 import 'profile_screen.dart';
@@ -94,6 +95,7 @@ class _MainScreenState extends State<MainScreen> {
         ProfileScreen(userId: widget.userId),
         ShareMealScreen(),
         FeePaymentScreen(),
+        BreakfastPoll()
         // Add more default user-specific screens here
       ];
       bottomItems = [
@@ -109,12 +111,16 @@ class _MainScreenState extends State<MainScreen> {
           icon: _loadIcon('dollar', _selectedIndex == 2),
           label: 'Fees',
         ),
+        BottomNavigationBarItem(
+          icon: _loadIcon('poll', _selectedIndex == 3),
+          label: 'Fees',
+        ),
         // Add more items for default user-specific features here
       ];
     }
 
     // Define the color of the yellow square
-    final activeIconColor = const Color(0xFFFBC32C);
+    const activeIconColor = Color(0xFFFBC32C);
 
     // Define the size of the rounded square
     // final squareSize = 36.0; // The size of the square
@@ -148,7 +154,7 @@ class _MainScreenState extends State<MainScreen> {
             ),
             const SizedBox(
                 height:
-                    10), // Add a small space between the body and the bottom navigation bar
+                    0), // Add a small space between the body and the bottom navigation bar
           ],
         ),
       ),

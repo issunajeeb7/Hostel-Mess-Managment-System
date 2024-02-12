@@ -104,7 +104,7 @@ Future<void> _fetchUserData() async {
                       radius: 50.0,
                       backgroundImage: _profilePicUrl.isNotEmpty
                           ? CachedNetworkImageProvider(_profilePicUrl)
-                          : AssetImage('assets/default_profile_pic.png')
+                          : const AssetImage('assets/default_profile_pic.png')
                               as ImageProvider,
                     ),
                     if (_profilePicUrl.isEmpty)
@@ -113,11 +113,11 @@ Future<void> _fetchUserData() async {
                         right: 0,
                         child: Container(
                           padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             shape: BoxShape.circle,
                             color: Color.fromARGB(255, 255, 255, 255),
                           ),
-                          child: Icon(
+                          child: const Icon(
                             Icons.create_rounded,
                             color: Colors.black,
                           ),
@@ -152,7 +152,7 @@ Future<void> _fetchUserData() async {
                 height: 100,
                 margin: const EdgeInsets.symmetric(horizontal: 20.0),
                 decoration: BoxDecoration(
-                  color: Color(0xFFFFF9EA),
+                  color: const Color(0xFFFFF9EA),
                   borderRadius: BorderRadius.circular(15.0),
                   boxShadow: [
                     BoxShadow(
