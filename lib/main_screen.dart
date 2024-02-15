@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mess_bytes/polling_screen.dart';
+import 'polling_screen.dart';
 import 'admin_scan_screen.dart';
 import 'voucher_market_place_screen.dart';
 import 'profile_screen.dart';
@@ -95,7 +95,7 @@ class _MainScreenState extends State<MainScreen> {
         ProfileScreen(userId: widget.userId),
         ShareMealScreen(),
         FeePaymentScreen(),
-        BreakfastPoll()
+        PollsScreen()
         // Add more default user-specific screens here
       ];
       bottomItems = [
