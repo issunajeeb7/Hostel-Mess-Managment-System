@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_polls/flutter_polls.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class MealPoll extends StatefulWidget {
   final String mealName;
@@ -62,62 +63,100 @@ class _MealPollState extends State<MealPoll> {
     }
   }
 
-  Widget _buildPollResults() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.all(8.0),
-        ),
-        Column(
-          children: _votesCount.entries.map((entry) {
-            double votePercentage = _votesCount[entry.key]! /
-                _votesCount.values.fold(
-                    0, (previousValue, element) => previousValue + element);
-            return Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 4.0, horizontal: 15.0),
-              child: Container(
-                height: 30,
-                 // Set the desired height here
-                decoration: BoxDecoration(
-                  color: Color.fromARGB(255, 254, 231, 196),
-                  borderRadius: BorderRadius.circular(23),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 0.0),
-                child: Stack(
-                  children: [
-                    Container(
-                      width: MediaQuery.of(context).size.width * votePercentage,
-                      decoration: BoxDecoration(
-                        color: Color.fromARGB(255, 251, 196, 44),
-                        borderRadius: BorderRadius.circular(23),
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          entry.key,
-                          textAlign: TextAlign.center,
-                        ),
-                        const Spacer(), // Adds space between the meal name and the percentage
-                        Text(
-                          '${(votePercentage * 100).toStringAsFixed(1)}%',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-      ],
-    );
+  Future<void> resetVotes() async {
+  try {
+    await FirebaseFirestore.instance
+        .collection('votes')
+        .doc('mealVotes')
+        .set({
+      'Breakfast': {},
+      'Lunch': {},
+      'Snack': {},
+      'Dinner': {},
+    }, SetOptions(merge: true));
+    await FirebaseFirestore.instance
+        .collection('userVotes')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .delete();
+  } catch (e) {
+    print('Error resetting votes: $e');
+    // Handle the error as needed
   }
+}
+
+// Assuming that you have a method to get the current day of the week (e.g., getDayOfWeek())
+
+
+
+ Widget _buildPollResults() {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Padding(
+        padding: EdgeInsets.all(8.0),
+      ),
+      Column(
+        children: _votesCount.entries.map((entry) {
+          double votePercentage = _votesCount[entry.key]! /
+              _votesCount.values.fold(
+                  0, (previousValue, element) => previousValue + element);
+          if (votePercentage.isNaN) {
+            votePercentage = 0.0; // Set votePercentage to 0 if it's NaN
+          }
+          return Padding(
+            padding:
+                const EdgeInsets.symmetric(vertical: 4.0, horizontal: 15.0),
+            child: Container(
+              height: 30, // Set the desired height here
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(60, 251, 195, 44),
+                borderRadius: BorderRadius.circular(23),
+              ),
+              child: Stack(
+                children: [
+                  Container(
+                    width: MediaQuery.of(context).size.width * votePercentage,
+                    decoration: BoxDecoration(
+                      color: const Color.fromARGB(255, 251, 196, 44),
+                      borderRadius: BorderRadius.circular(23),
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: Text(
+                              entry.key,
+                              style: GoogleFonts.nunitoSans(
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: Text(
+                          '${(votePercentage * 100).toStringAsFixed(1)}%',
+                          style: GoogleFonts.nunitoSans(
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    ],
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -148,6 +187,7 @@ class _MealPollState extends State<MealPoll> {
             ));
           });
         });
+        
 
         return Padding(
           padding: const EdgeInsets.fromLTRB(
@@ -155,7 +195,7 @@ class _MealPollState extends State<MealPoll> {
           child: Container(
             decoration: BoxDecoration(
               color: const Color.fromARGB(
-                  255, 255, 249, 234), // Change to the desired background color
+                  40, 251, 195, 44), // Change to the desired background color
               borderRadius: BorderRadius.circular(20),
             ),
             child: Column(
@@ -186,8 +226,8 @@ class _MealPollState extends State<MealPoll> {
                       const SizedBox(width: 10),
                       Text(
                         widget.mealName,
-                        style: const TextStyle(
-                          color: Color.fromARGB(
+                        style: GoogleFonts.nunitoSans(
+                          color: const Color.fromARGB(
                               255, 0, 0, 0), // Change to the desired text color
                           fontWeight: FontWeight.normal,
                           fontSize: 25,
@@ -241,8 +281,9 @@ class _MealPollState extends State<MealPoll> {
                               // Handle the error as needed
                               return false;
                             }
+                            
                           },
-                          votedPercentageTextStyle: const TextStyle(
+                          votedPercentageTextStyle: GoogleFonts.nunitoSans(
                               fontSize: 14, fontWeight: FontWeight.w600),
                           pollOptionsBorderRadius: BorderRadius.circular(23),
                           pollOptionsBorder:

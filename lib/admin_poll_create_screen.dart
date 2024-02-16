@@ -100,73 +100,77 @@ class _CreatePollScreenState extends State<CreatePollScreen> {
   }
 
   Future<void> createPoll() async {
-    try {
-      for (String meal in selectedFoodOptions.keys) {
-        if (selectedFoodOptions[meal]!.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Please add at least one item in each meal.'),
-            ),
-          );
-          return;
-        }
-      }
-
-      final lastPollTime = _prefs.getInt('lastPollTime') ?? 0;
-      final currentTime = DateTime.now().millisecondsSinceEpoch;
-
-      if (currentTime - lastPollTime <
-          Duration.hoursPerDay * Duration.millisecondsPerHour) {
+  try {
+    // Check if all meals have at least one item selected
+    for (String meal in selectedFoodOptions.keys) {
+      if (selectedFoodOptions[meal]!.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              'You can create a new poll only once in a week',
-            ),
+            content: Text('Please add at least one item in each meal.'),
           ),
         );
         return;
       }
-
-      String currentDate =
-          DateTime.now().toLocal().toIso8601String().split('T')[0];
-      CollectionReference pollOptions = _firestore.collection('pollOptions');
-
-      await pollOptions.add({
-        'Date': currentDate,
-        'Breakfast': selectedFoodOptions['Breakfast'],
-        'Lunch': selectedFoodOptions['Lunch'],
-        'Snack': selectedFoodOptions['Snack'],
-        'Dinner': selectedFoodOptions['Dinner'],
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Poll created successfully!'),
-        ),
-      );
-
-      for (var controller in userFoodOptionControllers.values) {
-        controller.clear();
-      }
-
-      selectedFoodOptions = {
-        'Breakfast': [],
-        'Lunch': [],
-        'Snack': [],
-        'Dinner': [],
-      };
-
-      isCreatePollButtonEnabled = false; // Disable button after creating poll
-      setLastPollTime(); // Set timestamp for the last poll
-    } catch (e) {
-      print('Error creating poll: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error creating poll. Please try again.'),
-        ),
-      );
     }
+
+    final lastPollTime = _prefs.getInt('lastPollTime') ?? 0;
+    final currentTime = DateTime.now().millisecondsSinceEpoch;
+
+    // Check if the user can create a new poll (once a week)
+    // if (currentTime - lastPollTime <
+    //     Duration.hoursPerDay * Duration.millisecondsPerHour) {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(
+    //       content: Text(
+    //         'You can create a new poll only once in a week',
+    //       ),
+    //     ),
+    //   );
+    //   return;
+    // }
+
+    // Reference to the poll document in Firestore (using a fixed document ID)
+    DocumentReference pollDocument = _firestore.collection('pollOptions').doc('W2ddDpWnDelnq8gnkKdb');
+
+    // Set the data for the poll document
+    await pollDocument.set({
+      'Breakfast': selectedFoodOptions['Breakfast'],
+      'Lunch': selectedFoodOptions['Lunch'],
+      'Snack': selectedFoodOptions['Snack'],
+      'Dinner': selectedFoodOptions['Dinner'],
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Poll created successfully!'),
+      ),
+    );
+
+    // Clear the text controllers and reset selected food options
+    for (var controller in userFoodOptionControllers.values) {
+      controller.clear();
+    }
+
+    selectedFoodOptions = {
+      'Breakfast': [],
+      'Lunch': [],
+      'Snack': [],
+      'Dinner': [],
+    };
+
+    // Disable button after creating poll and set timestamp for the last poll
+    isCreatePollButtonEnabled = false;
+    await setLastPollTime();
+  } catch (e) {
+    print('Error creating poll: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Error creating poll. Please try again.'),
+      ),
+    );
   }
+}
+
 
   Widget buildFoodOption(String meal, String foodOption) {
     bool isAdded = selectedFoodOptions[meal]!.contains(foodOption);
