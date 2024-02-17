@@ -117,21 +117,23 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         children: [
           Text(
             labelText,
-            style: GoogleFonts.nunito(
+            style: GoogleFonts.nunitoSans(
               fontWeight: FontWeight.normal,
               fontSize: 16.0,
             ),
           ),
           TextFormField(
             controller: controller,
-            style: GoogleFonts.nunito(
+            style: GoogleFonts.nunitoSans(
               fontSize: 14.0,
             ),
             decoration: InputDecoration(
               filled: true,
               fillColor: Colors.grey[200],
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12.0,
+                vertical: 10.0,
+              ),
               enabledBorder: OutlineInputBorder(
                 borderSide: const BorderSide(color: Colors.transparent),
                 borderRadius: BorderRadius.circular(12.0),
@@ -156,7 +158,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         title: const Text(
           'Sign Up',
           style: TextStyle(
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.normal,
             fontSize: 24,
             color: Colors.black,
           ),
@@ -241,24 +243,25 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       },
                       label: 'Non-Hosteller',
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 30),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         primary: const Color(0xFFFBC32C),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(39),
                         ),
+                        elevation: 0,
                         minimumSize: const Size(double.infinity, 50),
                       ),
                       onPressed: _register,
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 12.0),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12.0),
                         child: Text(
                           'Sign Up',
-                          style: TextStyle(
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
+                          style: GoogleFonts.nunitoSans(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
                           ),
                         ),
                       ),
