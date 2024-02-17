@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'main_screen.dart'; // Import MainScreen
 
 class LoginScreen extends StatefulWidget {
@@ -62,6 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
             );
           }
         }
+        Navigator.pop(context);
       } on FirebaseAuthException catch (e) {
         setState(() => _isLoading = false);
         var errorMessage = 'An error occurred. Please check your credentials and try again.';
@@ -75,10 +77,6 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-
-
-
-
   Widget _buildTextFormField({
     required String labelText,
     required String hintText,
@@ -90,8 +88,20 @@ class _LoginScreenState extends State<LoginScreen> {
     return TextFormField(
       controller: controller,
       decoration: InputDecoration(
-        labelText: labelText,
-        hintText: hintText,
+        filled: true,
+        fillColor: Colors.grey[200],
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 12.0,
+          vertical: 10.0,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Colors.transparent),
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Colors.transparent),
+          borderRadius: BorderRadius.circular(12.0),
+        ),
       ),
       validator: validator,
       onSaved: onSaved,
@@ -109,64 +119,59 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
+      appBar: AppBar(title: const Text('Sign In'), automaticallyImplyLeading: false),
       body: Center(
         child: Container(
-          width: 200,
+          width: 300, // Reduced width
           padding: const EdgeInsets.all(16.0),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10.0),
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.5),
-                spreadRadius: 2,
-                blurRadius: 5,
-                offset: const Offset(0, 2),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                'Email',
+                style: GoogleFonts.nunitoSans(color: Colors.black,fontSize: 16,fontWeight:FontWeight.normal),
+              ),
+              const SizedBox(height: 5.0),
+              _buildTextFormField(
+                labelText: '',
+                hintText: 'Enter your email',
+                validator: (input) => !input!.contains('@') ? 'Please enter a valid email' : null,
+                onSaved: (input) => _emailController.text = input!,
+                controller: _emailController,
+              ),
+              const SizedBox(height: 10.0),
+              Text(
+                'Password',
+                style: GoogleFonts.nunitoSans(color: Colors.black,fontSize: 16,fontWeight:FontWeight.normal),
+              ),
+              const SizedBox(height: 5.0),
+              _buildTextFormField(
+                labelText: '',
+                hintText: 'Enter your password',
+                validator: (input) => input!.length < 6 ? 'Must be at least 6 characters' : null,
+                onSaved: (input) => _passwordController.text = input!,
+                obscureText: true,
+                controller: _passwordController,
+              ),
+              const SizedBox(height: 20.0),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  primary: Color(0xFFFBC32C), // Use the specified color
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
+                onPressed: _login,
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12.0),
+                  child: Text(
+                    'Login',
+                    style: TextStyle(fontSize: 16.0),
+                  ),
+                ),
               ),
             ],
-          ),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                _buildTextFormField(
-                  labelText: 'Email',
-                  hintText: 'Enter your email',
-                  validator: (input) => !input!.contains('@') ? 'Please enter a valid email' : null,
-                  onSaved: (input) => _emailController.text = input!,
-                  controller: _emailController,
-                ),
-                const SizedBox(height: 10.0),
-                _buildTextFormField(
-                  labelText: 'Password',
-                  hintText: 'Enter your password',
-                  validator: (input) => input!.length < 6 ? 'Must be at least 6 characters' : null,
-                  onSaved: (input) => _passwordController.text = input!,
-                  obscureText: true,
-                  controller: _passwordController,
-                ),
-                const SizedBox(height: 20.0),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.green,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                  ),
-                  onPressed: _login,
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12.0),
-                    child: Text(
-                      'Login',
-                      style: TextStyle(fontSize: 16.0),
-                    ),
-                  ),
-                ),
-              ],
-            ),
           ),
         ),
       ),

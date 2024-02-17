@@ -1,137 +1,210 @@
-import 'dart:io';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_application_1/Signinup/Signin.dart'; // Update this import according to your file structure
-import 'package:google_fonts/google_fonts.dart';
-import 'package:image_picker/image_picker.dart';
+// import 'dart:io';
 
-class ClinicProfile extends StatefulWidget {
-  const ClinicProfile({Key? key}) : super(key: key);
+// import 'package:cached_network_image/cached_network_image.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:firebase_storage/firebase_storage.dart';
+// import 'package:flutter/material.dart';
+// import 'package:image_cropper/image_cropper.dart';
+// import 'package:image_picker/image_picker.dart';
+// import 'package:google_fonts/google_fonts.dart';
 
-  @override
-  State<ClinicProfile> createState() => _ClinicProfileState();
-}
+// class ClinicProfile extends StatefulWidget {
+//   const ClinicProfile({Key? key});
 
-class _ClinicProfileState extends State<ClinicProfile> {
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController placeController = TextEditingController();
-  final TextEditingController timingController = TextEditingController();
-  String _profilePicUrl = '';
+//   @override
+//   State<ClinicProfile> createState() => _ClinicProfileState();
+// }
 
-  Future<void> _signOut() async {
-    await FirebaseAuth.instance.signOut();
-    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const Signin(userId: ''))); // Assuming Signin accepts a userId parameter
-  }
+// class _ClinicProfileState extends State<ClinicProfile> {
+//   final TextEditingController nameController = TextEditingController();
+//   final TextEditingController placeController = TextEditingController();
+//   final TextEditingController timingController = TextEditingController();
+//   final FirebaseAuth _auth = FirebaseAuth.instance;
+//   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+//   final FirebaseStorage _storage = FirebaseStorage.instance;
+//   String _profilePicUrl = '';
+//   late Key _circleAvatarKey = UniqueKey();
 
-  Future<void> _saveClinicInformation() async {
-    final userId = FirebaseAuth.instance.currentUser?.uid;
+//   Future<void> _signOut() async {
+//     await FirebaseAuth.instance.signOut();
+//     Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Signin(userId: '',)));
+//   }
 
-    if (userId != null) {
-      await FirebaseFirestore.instance.collection('CLINIC').doc(userId).set({
-        'clinicName': nameController.text,
-        'place': placeController.text,
-        'openingHours': timingController.text,
-        'profilePicUrl': _profilePicUrl, // Assuming you want to save the profile pic URL as well
-      });
-    }
-  }
+//   Future<void> _saveClinicInformation() async {
+//     final userId = FirebaseAuth.instance.currentUser?.uid;
 
-  Future<void> _pickAndUploadImage() async {
-    final ImagePicker _picker = ImagePicker();
-    // Pick an image
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      // Upload to Firebase
-      String? imageUrl = await _uploadImageToStorage(File(image.path));
-      if (imageUrl != null) {
-        setState(() {
-          _profilePicUrl = imageUrl;
-        });
-      }
-    }
-  }
+//     if (userId != null) {
+//       await FirebaseFirestore.instance.collection('CLINIC').doc(userId).set({
+//         'clinicName': nameController.text,
+//         'place': placeController.text,
+//         'openingHours': timingController.text,
+//       });
+//     }
+//   }
 
-  Future<String?> _uploadImageToStorage(File imageFile) async {
-    try {
-      String userId = FirebaseAuth.instance.currentUser!.uid;
-      TaskSnapshot snapshot = await FirebaseStorage.instance
-          .ref()
-          .child('clinic_profile_pics/$userId')
-          .putFile(imageFile);
+//  Future<void> _pickAndCropImage() async {
+//   final picker = ImagePicker();
+//   try {
+//     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
-      if (snapshot.state == TaskState.success) {
-        final String downloadUrl = await snapshot.ref.getDownloadURL();
-        await FirebaseFirestore.instance.collection('CLINIC').doc(userId).update({'profilePicUrl': downloadUrl});
-        return downloadUrl;
-      }
-    } catch (e) {
-      print(e); // Ideally, handle the error more gracefully
-    }
-    return null;
-  }
+//     if (pickedFile != null) {
+//       final croppedFile = await _cropImage(File(pickedFile.path));
+//       if (croppedFile != null) {
+//         final imageUrl = await _uploadImageToStorage(File(croppedFile.path));
+//         if (imageUrl != null) {
+//           setState(() {
+//             _circleAvatarKey = UniqueKey();
+//             _profilePicUrl = imageUrl;
+//           });
+//         }
+//       }
+//     }
+//   } catch (e) {
+//     print('Error in _pickAndCropImage: $e');
+//     // Optionally, show an error message to the user
+//   }
+// }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Clinic Details'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: _signOut,
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (_profilePicUrl.isNotEmpty)
-                Center(
-                  child: CachedNetworkImage(
-                    imageUrl: _profilePicUrl,
-                    placeholder: (context, url) => const CircularProgressIndicator(),
-                    errorWidget: (context, url, error) => const Icon(Icons.error),
-                    width: 100,
-                    height: 100,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _pickAndUploadImage,
-                child: const Text('Upload Profile Picture'),
-              ),
-              TextField(
-                controller: nameController,
-                decoration: const InputDecoration(labelText: 'Clinic Name'),
-              ),
-              TextField(
-                controller: placeController,
-                decoration: const InputDecoration(labelText: 'Place'),
-              ),
-              TextField(
-                controller: timingController,
-                decoration: const InputDecoration(labelText: 'Opening Hours'),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _saveClinicInformation,
-                child: Text('Save', style: GoogleFonts.inter(color: Colors.white)),
-                style: ElevatedButton.styleFrom(
-                  primary: const Color.fromARGB(255, 1, 101, 252),
-                  minimumSize: const Size(double.infinity, 50), // double.infinity is the width and 50 is the height
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+
+
+//  Future<CroppedFile?> _cropImage(File imageFile) async {
+//   final ImageCropper imageCropper = ImageCropper();
+//   final CroppedFile? croppedFile = await imageCropper.cropImage(
+//     sourcePath: imageFile.path,
+//     compressFormat: ImageCompressFormat.jpg,
+//     compressQuality: 70,
+//   );
+
+//   return croppedFile;
+// }
+
+
+//   Future<String?> _uploadImageToStorage(File imageFile) async {
+//     try {
+//       final storageRef = _storage.ref().child('profile_pics/${_auth.currentUser!.uid}.jpg');
+//       await storageRef.putFile(imageFile);
+
+//       final downloadUrl = await storageRef.getDownloadURL();
+//       return downloadUrl;
+//     } catch (e) {
+//       print('Error uploading image: $e');
+//       return null;
+//     }
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text('Clinic Details'),
+//       ),
+//       body: SingleChildScrollView(
+//         child: Padding(
+//           padding: const EdgeInsets.all(16.0),
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               TextField(
+//                 controller: nameController,
+//                 decoration: InputDecoration(labelText: 'Clinic name'),
+//               ),
+//               const SizedBox(height: 16.0),
+//               TextField(
+//                 controller: placeController,
+//                 decoration: InputDecoration(labelText: 'Place'),
+//               ),
+//               const SizedBox(height: 16.0),
+//               TextField(
+//                 controller: timingController,
+//                 decoration: InputDecoration(labelText: 'Opening hours'),
+//                 maxLines: 4,
+//               ),
+//               const SizedBox(height: 16.0),
+//               Center(
+//                 child: GestureDetector(
+//                   onTap: () async {
+//                     await _pickAndCropImage();
+//                   },
+//                   child: Stack(
+//                     children: [
+//                       Container(
+//                         width: 100.0,
+//                         height: 100.0,
+//                         decoration: BoxDecoration(
+//                           shape: BoxShape.rectangle,
+//                           borderRadius: BorderRadius.circular(8.0),
+//                           image: DecorationImage(
+//                             fit: BoxFit.cover,
+//                             alignment: Alignment.center,
+//                             image: _profilePicUrl.isNotEmpty
+//                                 ? CachedNetworkImageProvider(_profilePicUrl)
+//                                 : const AssetImage('images/profile.png') as ImageProvider,
+//                           ),
+//                         ),
+//                       ),
+//                       if (_profilePicUrl.isEmpty)
+//                         Positioned(
+//                           bottom: 0,
+//                           right: 0,
+//                           child: Container(
+//                             padding: const EdgeInsets.all(4),
+//                             decoration: const BoxDecoration(
+//                               shape: BoxShape.circle,
+//                               color: Color.fromARGB(255, 255, 255, 255),
+//                             ),
+//                             child: const Icon(
+//                               Icons.create_rounded,
+//                               color: Colors.black,
+//                             ),
+//                           ),
+//                         ),
+//                     ],
+//                   ),
+//                 ),
+//               ),
+//               const SizedBox(height: 16.0),
+//               ElevatedButton(
+//                 onPressed: () async {
+//                   await _saveClinicInformation();
+//                 },
+//                 child: Text('Save', style: GoogleFonts.inter(color: Colors.white)),
+//                 style: ElevatedButton.styleFrom(
+//                   padding: const EdgeInsets.all(15),
+//                   backgroundColor: const Color.fromARGB(255, 1, 101, 252),
+//                   textStyle: const TextStyle(
+//                     fontSize: 16,
+//                     fontWeight: FontWeight.normal,
+//                   ),
+//                   shape: RoundedRectangleBorder(
+//                     borderRadius: BorderRadius.circular(40.0),
+//                   ),
+//                   minimumSize: const Size(380, 0),
+//                 ),
+//               ),
+//               const SizedBox(height: 10.0),
+//               ElevatedButton(
+//                 onPressed: () async {
+//                   await _signOut();
+//                 },
+//                 child: Text('Sign Out', style: GoogleFonts.inter(color: Colors.white)),
+//                 style: ElevatedButton.styleFrom(
+//                   padding: const EdgeInsets.all(15),
+//                   backgroundColor: const Color.fromARGB(255, 1, 101, 252),
+//                   textStyle: const TextStyle(
+//                     fontSize: 16,
+//                     fontWeight: FontWeight.normal,
+//                   ),
+//                   shape: RoundedRectangleBorder(
+//                     borderRadius: BorderRadius.circular(40.0),
+//                   ),
+//                   minimumSize: const Size(380, 0),
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }

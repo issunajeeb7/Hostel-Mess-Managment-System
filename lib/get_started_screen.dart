@@ -1,5 +1,7 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart'; // Import Google Fonts package
+import 'login_screen.dart';
 import 'registration_screen.dart';
 
 class GetStartedScreen extends StatefulWidget {
@@ -111,16 +113,12 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
               bottom: 125,
               left: 0,
               right: 0,
-              
               child: Center(
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     primary: const Color(0xFFFBC32C),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(39),
-                      
-                      
-                    
                     ),
                     elevation: 0,
                   ),
@@ -133,16 +131,17 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
                       );
                     });
                   },
-                 
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 90, vertical: 10), // Increase button padding
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 90,
+                        vertical: 10), // Increase button padding
                     child: Text(
                       'Get Started',
-                      style: GoogleFonts.nunitoSans( // Apply Google Fonts
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white
-                      ),
+                      style: GoogleFonts.nunitoSans(
+                          // Apply Google Fonts
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white),
                     ),
                   ),
                 ),
@@ -172,10 +171,14 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
                     );
                   },
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 107, vertical: 10), // Apply the same padding as "Get Started" button
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 107,
+                        vertical:
+                            10), // Apply the same padding as "Get Started" button
                     child: Text(
                       'Sign Up',
-                      style: GoogleFonts.nunitoSans( // Apply Google Fonts
+                      style: GoogleFonts.nunitoSans(
+                        // Apply Google Fonts
                         fontSize: 20,
                         fontWeight: FontWeight.w500,
                         color: Colors.white,
@@ -185,6 +188,44 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
                 ),
               ),
             ),
+            if (_showButtons &&
+              _currentPageIndex ==
+                  0)
+          Positioned(
+            bottom: 95, // Adjust the position as needed
+            left: 0,
+            right: 0,
+            child: Center(
+              child: RichText(
+                text: TextSpan(
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.black, // Default text color
+                  ),
+                  children: [
+                    const TextSpan(
+                      text: 'Already have an account? ',
+                    ),
+                    TextSpan(
+                      text: 'Sign in',
+                      style: const TextStyle(
+                        color: Color(0xFFFBC32C), // FBC32C color
+                        decoration: TextDecoration.underline, // Underline style
+                      ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const LoginScreen()),
+                          );
+                        },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -198,7 +239,8 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
         const SizedBox(height: 20),
         Text(
           data['title'],
-          style: GoogleFonts.nunitoSans( // Apply Google Fonts
+          style: GoogleFonts.nunitoSans(
+            // Apply Google Fonts
             fontSize: 24,
             fontWeight: FontWeight.bold,
           ),
@@ -209,7 +251,8 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
           child: Text(
             data['description'],
             textAlign: TextAlign.center,
-            style: GoogleFonts.nunitoSans( // Apply Google Fonts
+            style: GoogleFonts.nunitoSans(
+              // Apply Google Fonts
               fontSize: 16,
             ),
           ),
