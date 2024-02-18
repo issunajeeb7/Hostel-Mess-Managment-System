@@ -19,23 +19,28 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
   List<Map<String, dynamic>> onboardingData = [
     {
       'image': 'assets/image2.png',
-      'title': 'Title 1',
-      'description': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
+      'title': 'MessBytes',
+      'description': 'Never stress about the mess'
     },
     {
       'image': 'assets/image2.png',
-      'title': 'Title 2',
-      'description': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
+      'title': 'Attendance Tracking',
+      'description': 'Mark your attendance by scanning QR codes.'
     },
     {
       'image': 'assets/image3.png',
-      'title': 'Title 3',
-      'description': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
+      'title': 'Share the Meal',
+      'description': 'Planning to take a meal cut?,\nDon\'t worry, Share your meals with fellow non-hostelers ',
     },
     {
       'image': 'assets/image2.png',
-      'title': 'Title 4',
-      'description': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
+      'title': 'Fee Payment',
+      'description': 'Easily pay your hostel fees securely through the app.'
+    },
+    {
+      'image': 'assets/image2.png',
+      'title': 'Meal Polling',
+      'description': 'Vote for your favorite meals and help decide what\'s on the menu!'
     },
   ];
 
