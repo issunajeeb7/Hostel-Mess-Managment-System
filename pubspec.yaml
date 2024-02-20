@@ -108,6 +108,8 @@ flutter:
     - assets/poll_outlined.png
     - assets/image2.png
     - assets/image3.png
+    - assets/image5.png
+    - assets/image4.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

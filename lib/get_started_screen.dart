@@ -33,12 +33,12 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
       'description': 'Planning to take a meal cut?,\nDon\'t worry, Share your meals with fellow non-hostelers ',
     },
     {
-      'image': 'assets/image2.png',
+      'image': 'assets/image4.png',
       'title': 'Fee Payment',
       'description': 'Easily pay your hostel fees securely through the app.'
     },
     {
-      'image': 'assets/image2.png',
+      'image': 'assets/image5.png',
       'title': 'Meal Polling',
       'description': 'Vote for your favorite meals and help decide what\'s on the menu!'
     },
