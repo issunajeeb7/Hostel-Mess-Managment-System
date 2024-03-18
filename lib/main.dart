@@ -9,6 +9,7 @@ import 'get_started_screen.dart';
 import 'main_screen.dart';
 import 'profile_screen.dart';
 import 'package:flutter/services.dart';
+import 'first_page.dart';
 // Make sure you have created this file
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
@@ -100,7 +101,7 @@ class LandingPage extends StatelessWidget {
             );
           }
           // User is not logged in, go to the 'Get Started' screen
-          return const GetStartedScreen();
+          return const FirstPage();
         }
         // Waiting for connection, show a loading indicator
         return const Scaffold(
