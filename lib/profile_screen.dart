@@ -69,6 +69,7 @@ Future<void> _fetchUserData() async {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Profile'),
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),

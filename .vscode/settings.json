@@ -1,4 +1,4 @@
 {
-    "cmake.sourceDirectory": "D:/login/build/windows/x64/extracted/firebase_cpp_sdk_windows",
+    "cmake.sourceDirectory": "D:/login/linux",
     "java.configuration.updateBuildConfiguration": "interactive"
 }

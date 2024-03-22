@@ -51,6 +51,7 @@ dependencies:
   cached_network_image: ^3.3.0
   flutter_dropdown: ^1.0.1+hotfix.1
   flutter_polls: ^0.1.6
+  flutter_launcher_icons: ^0.13.1
   
 
 dev_dependencies:
@@ -68,6 +69,10 @@ dev_dependencies:
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter packages.
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/logo.png"
 flutter:
   # fonts:
   #   - family: Nunito Sans

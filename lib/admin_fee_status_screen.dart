@@ -38,7 +38,12 @@ class _AdminFeeStatusScreenState extends State<AdminFeeStatusScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Payment Status'),
+        automaticallyImplyLeading: false,
+        forceMaterialTransparency: true,
+        title:  Text('Payment Status' ,style: GoogleFonts.nunitoSans(
+          fontSize: 20.0,
+          fontWeight:FontWeight.w500
+        ),),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
       ),

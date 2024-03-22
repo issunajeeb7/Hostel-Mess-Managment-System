@@ -20,7 +20,7 @@ void main() async {
   );
   runApp(const MyApp());
    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    systemNavigationBarColor: Color.fromARGB(255, 255, 255, 255), // Set the desired color here
+    systemNavigationBarColor: Colors.transparent, // Set the desired color here
   ));
 }
 

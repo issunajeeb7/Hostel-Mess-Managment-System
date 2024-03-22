@@ -60,35 +60,45 @@ Future<void> shareMeal() async {
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: const Text('Confirm Voucher Generation'),
-        content: Text(
-          'Are you sure you want to generate a meal voucher for ${DateFormat('yyyy-MM-dd').format(selectedDate)} - $selectedMealType?',
-          style: const TextStyle(color: Colors.black),
+  title: Row(
+    children: [
+      Image.asset('assets/ticketicon.png', height: 24, width: 24), // Adjust height and width as needed
+      const SizedBox(width: 8), // Add space between icon and text
+      Text(
+        'Voucher Generation',
+        style: GoogleFonts.nunitoSans(fontWeight: FontWeight.w500),
+      ),
+    ],
+  ),
+  content: Text(
+    'Are you sure you want to generate a meal voucher for ${DateFormat('dd-MM-yyyy').format(selectedDate)} for $selectedMealType?',
+    style: GoogleFonts.nunitoSans(color: Colors.black),
+  ),
+  backgroundColor: Colors.white,
+  actions: <Widget>[
+    TextButton(
+      onPressed: () {
+        Navigator.of(context).pop(false); // User clicked No
+      },
+      child: const Text(
+        'No',
+        style: TextStyle(
+          color: Colors.black,
         ),
-        backgroundColor: const Color(0xFFFBC32C),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(false); // User clicked No
-            },
-            child: const Text(
-              'No',
-              style: TextStyle(
-                color: Color(0xFFFFF9EA),
-              ),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(true); // User clicked Yes
-            },
-            child: const Text(
-              'Yes',
-              style: TextStyle(color: Color(0xFFFFF9EA)),
-            ),
-          ),
-        ],
-      );
+      ),
+    ),
+    TextButton(
+      onPressed: () {
+        Navigator.of(context).pop(true); // User clicked Yes
+      },
+      child: const Text(
+        'Yes',
+        style: TextStyle(color: Colors.black),
+      ),
+    ),
+  ],
+);
+
     },
   );
 
@@ -143,7 +153,7 @@ Future<void> shareMeal() async {
                 'Date:',
                 style: GoogleFonts.nunitoSans(
                   fontSize: 25,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 8.0),
@@ -191,7 +201,7 @@ Future<void> shareMeal() async {
                 'Meals:',
                 style: GoogleFonts.nunitoSans(
                   fontSize: 25,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 8.0),
@@ -212,10 +222,10 @@ Future<void> shareMeal() async {
                 style: ElevatedButton.styleFrom(
                   primary: canGenerateVoucher(selectedMealType) ? const Color(0xFFFBC32C) : Colors.grey,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
+                    borderRadius: BorderRadius.circular(39.0),
                   ),
-                  shadowColor: Colors.black.withOpacity(1.0),
-                  elevation: 4,
+                  // shadowColor: Colors.black.withOpacity(1.0),
+                  elevation: 0,
                   minimumSize: const Size(350, 55),
                 ),
                 child: Container(
@@ -244,10 +254,10 @@ Future<void> shareMeal() async {
                 style: ElevatedButton.styleFrom(
                   primary: const Color(0xFFFBC32C),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
+                    borderRadius: BorderRadius.circular(39.0),
                   ),
-                  shadowColor: Colors.black.withOpacity(1.0),
-                  elevation: 4,
+                  // shadowColor: Colors.black.withOpacity(1.0),
+                  elevation: 0,
                   minimumSize: const Size(350, 55),
                 ),
                 child: Container(
@@ -300,6 +310,7 @@ Widget mealTypeCard(String mealType, String imagePath) {
           ],
         ),
         child: InkWell(
+          splashColor: Colors.transparent,
           onTap: canGenerate
               ? () {
                   setState(() {

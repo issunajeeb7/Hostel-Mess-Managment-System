@@ -77,10 +77,16 @@ class _FeePaymentScreenState extends State<FeePaymentScreen> {
             print('Fetched Voucher String: $voucherString');
           }
         }
+        
+        if (usedVouchers == 0) {
+        setState(() {
+          remainingFee = totalFee;
+        });
+      } else {
         setState(() {
           remainingFee = totalFee - (usedVouchers * 30);
         });
-
+      }
         // Update feeStatus based on the backend value
         feeStatus = userData['feeStatus'] ?? false;
 

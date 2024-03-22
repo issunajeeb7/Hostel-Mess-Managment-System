@@ -212,7 +212,7 @@ class VoucherListItem extends StatelessWidget {
             left: 120,
             top: 80,
             child: Text(
-              'Price: Rs ${voucher['price']}',
+              'Price: ₹ 30.00',
               style: GoogleFonts.nunitoSans(
                 color: Color.fromARGB(255, 255, 255, 255),
               ),

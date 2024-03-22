@@ -22,75 +22,75 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
 
   void _login(BuildContext context) async {
-    if (_formKey.currentState!.validate()) {
-      setState(() => _isLoading = true);
-      try {
-        if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
-          setState(() => _isLoading = false);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Please enter both email and password.')),
-          );
-          return;
-        }
-
-        UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-          email: _emailController.text,
-          password: _passwordController.text,
-        );
-
-        if (userCredential.user != null) {
-          String userId = userCredential.user!.uid;
-          DocumentSnapshot userDoc =
-              await _firestore.collection('users').doc(userId).get();
-
-          if (userDoc.exists && userDoc.data() is Map<String, dynamic>) {
-            final userData = userDoc.data() as Map<String, dynamic>;
-            String role = userData['role'] ?? '';
-            print('Role: $role');
-
-            int initialIndex;
-            switch (role) {
-              case 'admin':
-                initialIndex = 0; // Assuming the first index is for Admin
-                break;
-              case 'non-hosteller':
-                initialIndex =
-                    1; // Assuming the second index is for Non-Hosteller
-                break;
-              default:
-                initialIndex =
-                    2; // Assuming the third index is for Default user
-                break;
-            }
-
-            // Navigate to the MainScreen with the appropriate initial index and user role
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => MainScreen(
-                  initialIndex: initialIndex,
-                  userId: userId,
-                  userRole: role,
-                ),
-              ),
-            );
-          }
-        }
-        Navigator.pop(context);
-      } on FirebaseAuthException catch (e) {
+  if (_formKey.currentState!.validate()) {
+    setState(() => _isLoading = true);
+    try {
+      if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
         setState(() => _isLoading = false);
-        var errorMessage =
-            'An error occurred. Please check your credentials and try again.';
-        if (e.code == 'user-not-found') {
-          errorMessage = 'No user found for that email.';
-        } else if (e.code == 'wrong-password') {
-          errorMessage = 'Wrong password provided for that user.';
-        }
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(errorMessage)));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please enter both email and password.')),
+        );
+        return;
       }
+
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+
+      if (userCredential.user != null) {
+        String userId = userCredential.user!.uid;
+        DocumentSnapshot userDoc =
+            await _firestore.collection('users').doc(userId).get();
+
+        if (userDoc.exists && userDoc.data() is Map<String, dynamic>) {
+          final userData = userDoc.data() as Map<String, dynamic>;
+          String role = userData['role'] ?? '';
+          print('Role: $role');
+
+          int initialIndex;
+          switch (role) {
+            case 'admin':
+              initialIndex = 0; // Assuming the first index is for Admin
+              break;
+            case 'non-hosteller':
+              initialIndex =
+                  1; // Assuming the second index is for Non-Hosteller
+              break;
+            default:
+              initialIndex =
+                  2; // Assuming the third index is for Default user
+              break;
+          }
+
+          // Navigate to the MainScreen with the appropriate initial index and user role
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MainScreen(
+                initialIndex: initialIndex,
+                userId: userId,
+                userRole: role,
+              ),
+            ),
+          );
+        }
+      }
+    } on FirebaseAuthException catch (e) {
+      setState(() => _isLoading = false);
+      var errorMessage =
+          'An error occurred. Please check your credentials and try again.';
+      if (e.code == 'user-not-found') {
+        errorMessage = 'No user found for that email.';
+      } else if (e.code == 'wrong-password') {
+        errorMessage = 'Wrong password provided for that user.';
+      }
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(errorMessage)));
     }
   }
+}
+
 
  Widget _buildTextFormField({
   required String labelText,

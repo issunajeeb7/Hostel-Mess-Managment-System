@@ -62,7 +62,7 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
               child: TextButton(
                 style: ButtonStyle(overlayColor: MaterialStateProperty.all(Color.fromARGB(4, 0, 0, 0))),
                 onPressed: () {
-                  if (_currentPageIndex > 0) {
+                  if (_currentPageIndex > 0) {  
                     _pageController.previousPage(
                       duration: const Duration(milliseconds: 500),
                       curve: Curves.ease,

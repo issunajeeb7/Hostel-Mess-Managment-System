@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mess_bytes/admin_home_page.dart';
 import 'polling_screen.dart';
 import 'admin_scan_screen.dart';
 import 'voucher_market_place_screen.dart';
@@ -51,13 +52,16 @@ class _MainScreenState extends State<MainScreen> {
 
     if (widget.userRole == 'admin') {
       screens = [
+        
         const AdminScanScreen(),
         const AdminFeeStatusScreen(),
         CreatePollScreen(),
+        
 
         // Add more admin-specific screens here
       ];
       bottomItems = [
+      
         BottomNavigationBarItem(
           icon: _loadIcon('qr', _selectedIndex == 0),
           label: 'Dashboard',

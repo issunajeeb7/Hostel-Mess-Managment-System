@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
@@ -72,40 +73,59 @@ void dispose() {
     await audioPlayer.play(AssetSource('beep.mp3'));
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-     appBar: AppBar(
-        title: const Text('Attendance'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await _auth.signOut();
-              Navigator.of(context).pushReplacementNamed('/login');
-            },
-          ),
-        ],
-      ),
-      body: Column(
-        children: <Widget>[
-          Expanded(
-            flex: 5,
-            child: QRView(
-              key: qrKey,
-              onQRViewCreated: _onQRViewCreated,
+ @override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      automaticallyImplyLeading: false,
+      title: const Text('Attendance'),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.logout),
+          onPressed: () async {
+            await _auth.signOut();
+            Navigator.of(context).pushReplacementNamed('/login');
+          },
+        ),
+      ],
+    ),
+    body: Stack(
+      children: [
+        Column(
+          children: <Widget>[
+            Expanded(
+              flex: 5,
+              child: QRView(
+                key: qrKey,
+                onQRViewCreated: _onQRViewCreated,
+              ),
             ),
+            // Expanded(
+            //   child: Center(
+            //     child: _buildCounterDisplay(globalCounter), // Counter display widget
+            //   ),
+            // ),
+          ],
+        ),
+        Positioned.fill(
+          child: CustomPaint(
+            painter: ScannerOverlayShape(),
           ),
-          if (scanned)
-            Column(
-              children: [
-                Text('Scan Counter: $globalCounter'),
-              ],
-            ),
-        ],
-      ),
-    );
-  }
+        ),
+        Positioned(
+          top: MediaQuery.of(context).size.height * 0.7, // Adjust position as needed
+          left: 0,
+          right: 0,
+          child: Center(
+            child: _buildCounterDisplay(globalCounter), // Counter display widget
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+
 
   void _onQRViewCreated(QRViewController controller) {
     this.controller = controller;
@@ -282,5 +302,100 @@ void dispose() {
         content: Text(message),
       ),
     );
+  }
+
+ Widget _buildCounterDisplay(int counter) {
+  return Column(
+    children: [
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 60.0, vertical: 8.0),
+        decoration: BoxDecoration(
+          color: Color(0xFFFBC32C), // Adjust the background color as needed
+          borderRadius: BorderRadius.circular(30.0), // Rounded corners
+          boxShadow: [
+            BoxShadow(
+              color: const Color.fromARGB(66, 59, 57, 57),
+              blurRadius: 4,
+              offset: Offset(0, 2), // Shadow position
+            ),
+          ],
+        ),
+        child: Text(
+          'Current Diners: $counter',
+          style: GoogleFonts.nunitoSans(color: Color.fromARGB(255, 0, 0, 0),fontSize: 16)
+        ),
+      ),
+      TextButton(
+        
+        onPressed: () {
+          _resetCounter();
+        },
+        child: Text('Reset Counter',
+        style: GoogleFonts.nunitoSans(color:Color(0xFFFBC32C) ),
+        ),
+      ),
+    ],
+  );
+}
+
+void _resetCounter() async {
+  try {
+    await FirebaseFirestore.instance
+        .collection('scanCounter')
+        .doc('counterDoc')
+        .update({'counter': 0});
+    setState(() {
+      globalCounter = 0;
+    });
+    print('Counter reset successfully');
+  } catch (e) {
+    print('Error resetting counter: $e');
+  }
+}
+
+
+}
+
+
+class ScannerOverlayShape extends CustomPainter {
+  final Color overlayColor;
+
+  ScannerOverlayShape({this.overlayColor = const Color.fromARGB(128, 0, 0, 0)}); // Semi-transparent overlay
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = overlayColor
+      ..style = PaintingStyle.fill;
+
+    final width = size.width;
+    final height = size.height;
+    const borderSize = 300.0; // Size of the focus area
+    const borderRadius = 16.0; // Corner radius of the focus area
+
+    // Path for the dimmed overlay
+    Path overlayPath = Path()
+      ..addRect(Rect.fromLTWH(0, 0, width, height));
+
+    // Path for the clear area
+    Path clearPath = Path()
+      ..addRRect(RRect.fromRectAndRadius(
+          Rect.fromCenter(
+              center: Offset(width / 2, height / 2),
+              width: borderSize,
+              height: borderSize),
+          Radius.circular(borderRadius)))
+      ..fillType = PathFillType.evenOdd;
+
+    // Combine paths to create a dimmed area around the clear path
+    overlayPath = Path.combine(PathOperation.difference, overlayPath, clearPath);
+
+    // Draw the combined path
+    canvas.drawPath(overlayPath, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return false;
   }
 }
