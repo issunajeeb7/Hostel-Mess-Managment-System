@@ -164,7 +164,8 @@ class _FeePaymentScreenState extends State<FeePaymentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Fee Payment'),
+        automaticallyImplyLeading: false,
+        title:  Text('Fee Payment',style: GoogleFonts.nunitoSans(fontWeight: FontWeight.w500,fontSize: 25,),),
       ),
       body: SingleChildScrollView(
         child: Center(

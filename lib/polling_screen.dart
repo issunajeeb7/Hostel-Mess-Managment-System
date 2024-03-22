@@ -313,7 +313,8 @@ class PollsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Meal Polls'),
+        automaticallyImplyLeading: false,
+        title:  Text('Meal Polls',style: GoogleFonts.nunitoSans(fontWeight: FontWeight.w500,fontSize: 25,),),
         forceMaterialTransparency: true,
       ),
       body: const SingleChildScrollView(

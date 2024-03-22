@@ -138,7 +138,8 @@ Future<void> shareMeal() async {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Share a Meal'),
+        automaticallyImplyLeading: false,
+        title:  Text('Share a Meal',style: GoogleFonts.nunitoSans(fontWeight: FontWeight.w500,fontSize: 25,),),
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: IconThemeData(color: theme.primaryColor),
@@ -152,7 +153,7 @@ Future<void> shareMeal() async {
               Text(
                 'Date:',
                 style: GoogleFonts.nunitoSans(
-                  fontSize: 25,
+                  fontSize: 20,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -200,7 +201,7 @@ Future<void> shareMeal() async {
               Text(
                 'Meals:',
                 style: GoogleFonts.nunitoSans(
-                  fontSize: 25,
+                  fontSize: 20,
                   fontWeight: FontWeight.w500,
                 ),
               ),
