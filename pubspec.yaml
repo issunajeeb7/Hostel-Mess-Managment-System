@@ -39,7 +39,7 @@ dependencies:
   firebase_auth: ^4.15.0
   shared_preferences: ^2.2.2
   qr_code_scanner: ^1.0.1
-  cloud_firestore: ^4.13.3
+  cloud_firestore: ^4.15.8
   google_fonts: ^6.1.0
   intl: ^0.19.0
   upi_india: ^3.0.1
@@ -52,6 +52,10 @@ dependencies:
   flutter_dropdown: ^1.0.1+hotfix.1
   flutter_polls: ^0.1.6
   flutter_launcher_icons: ^0.13.1
+  firebase_messaging: ^14.7.19
+  firebase_service: ^0.0.1+1
+  http: ^1.2.0
+  firebase_analytics: ^10.8.9
   
 
 dev_dependencies:

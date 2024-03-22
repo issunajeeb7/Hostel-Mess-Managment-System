@@ -4,7 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'main_screen.dart';
-import 'registration_screen.dart'; // Import MainScreen
+import 'registration_screen.dart'; 
+import 'package:mess_bytes/notificationservice.dart';// Import MainScreen
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -20,6 +21,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
+  final NotificationService _notificationService = NotificationService(); 
 
   void _login(BuildContext context) async {
   if (_formKey.currentState!.validate()) {
@@ -39,6 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (userCredential.user != null) {
+        await _notificationService.initToken();
         String userId = userCredential.user!.uid;
         DocumentSnapshot userDoc =
             await _firestore.collection('users').doc(userId).get();

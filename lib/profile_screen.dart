@@ -68,16 +68,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       // appBar: AppBar(
-      //   automaticallyImplyLeading: false,
-      //   actions: [
-      //     IconButton(
-      //       icon: const Icon(Icons.logout),
-      //       onPressed: () async {
-      //         await _auth.signOut();
-      //         Navigator.of(context).pushReplacementNamed('/login');
-      //       },
+      //   forceMaterialTransparency: true,
+      //   leading: TextButton(
+      //     onPressed: () async {
+      //       await _auth.signOut();
+      //       Navigator.of(context).pushReplacementNamed('/login');
+      //     },
+      //     child: const Text(
+      //       'Logout',
+      //       style: TextStyle(color: Color(0xFFFBC32C)),
+            
+      //       overflow: TextOverflow.visible,
       //     ),
-      //   ],
+      //   ),
+      //   // Other app bar properties as needed
       // ),
       body: SingleChildScrollView(
         child: Center(
@@ -85,7 +89,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              const SizedBox(height: 24.0),
+              const SizedBox(height: 10.0),
+               Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 10.0),
+                  child: TextButton(
+                    onPressed: () async {
+                      await _auth.signOut();
+                      Navigator.of(context).pushReplacementNamed('/login');
+                    },
+                    child: Text(
+                      'Logout',
+                      style: GoogleFonts.nunitoSans(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFFFBC32C),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
               // Text(
               //   'My Profile',
               //   style: GoogleFonts.nunitoSans(
@@ -93,7 +119,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               //     fontWeight: FontWeight.w800,
               //   ),
               // ),
-              const SizedBox(height: 60.0),
+              const SizedBox(height: 70.0),
               GestureDetector(
                 onTap: () async {
                   await _pickAndCropImage();
@@ -185,7 +211,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 height: 50, // Adjusted height to match the provided design
                 margin: const EdgeInsets.symmetric(horizontal: 20.0),
                 decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 254, 231, 196), // Adjusted color to a lighter shade
+                  color: const Color.fromARGB(
+                      255, 254, 231, 196), // Adjusted color to a lighter shade
                   borderRadius:
                       BorderRadius.circular(30.0), // More rounded corners
                 ),
@@ -215,26 +242,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                  onPressed: () async {
-                    await _auth.signOut();
-                    Navigator.of(context).pushReplacementNamed('/login');
-                  },
-                  style: ElevatedButton.styleFrom(
-                    primary: const Color(0xFFFBC32C),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(39.0),
-                    ),
-                    // shadowColor: Colors.black.withOpacity(1.0),
-                    elevation: 0,
-                    minimumSize: const Size(300, 55),
-                  ),
-                  child: Text("Logout",
-                      style: GoogleFonts.nunitoSans(
-                        fontSize: 25,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
-                      ))),
+              
               const SizedBox(height: 20),
             ],
           ),

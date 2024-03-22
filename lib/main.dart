@@ -10,6 +10,7 @@ import 'main_screen.dart';
 import 'profile_screen.dart';
 import 'package:flutter/services.dart';
 import 'first_page.dart';
+import 'firebase_service.dart';
 // Make sure you have created this file
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
@@ -18,6 +19,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.android,
   );
+  
   runApp(const MyApp());
    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     systemNavigationBarColor: Colors.transparent, // Set the desired color here
@@ -29,6 +31,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //  final firebaseService = FirebaseService();
+    // firebaseService.listenToScanCounterChanges();
     return MaterialApp(
       navigatorObservers: [routeObserver],
       debugShowCheckedModeBanner: false,
