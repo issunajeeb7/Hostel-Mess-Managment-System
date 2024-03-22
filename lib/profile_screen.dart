@@ -35,51 +35,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _fetchUserData();
   }
 
-Future<void> _fetchUserData() async {
-  try {
-    // Fetch user document
-    final userDoc = await _firestore.collection('users').doc(widget.userId).get();
+  Future<void> _fetchUserData() async {
+    try {
+      // Fetch user document
+      final userDoc =
+          await _firestore.collection('users').doc(widget.userId).get();
 
-    // Update _fullName and _hostelID
-    _fullName = "${userDoc['firstName'] ?? ''} ${userDoc['lastName'] ?? ''}".trim();
-    print("Full name: $_fullName");
-    _hostelID = userDoc['hostelID'] ?? 'Hostel ID not found';
-    print('Hostel ID: $_hostelID');
+      // Update _fullName and _hostelID
+      _fullName =
+          "${userDoc['firstName'] ?? ''} ${userDoc['lastName'] ?? ''}".trim();
+      print("Full name: $_fullName");
+      _hostelID = userDoc['hostelID'] ?? 'Hostel ID not found';
+      print('Hostel ID: $_hostelID');
 
-    // Check if profilePicUrl field exists before setting _profilePicUrl
-    if (userDoc.data()!.containsKey('profilePicUrl')) {
+      // Check if profilePicUrl field exists before setting _profilePicUrl
+      if (userDoc.data()!.containsKey('profilePicUrl')) {
+        setState(() {
+          _profilePicUrl = userDoc['profilePicUrl'];
+        });
+      }
+
+      // Set _userDataLoaded to true after fetching data
       setState(() {
-        _profilePicUrl = userDoc['profilePicUrl'];
+        _userDataLoaded = true;
       });
+    } catch (e) {
+      print('Error fetching user data: $e');
     }
-
-    // Set _userDataLoaded to true after fetching data
-    setState(() {
-      _userDataLoaded = true;
-    });
-  } catch (e) {
-    print('Error fetching user data: $e');
   }
-}
-
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Profile'),
-        automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await _auth.signOut();
-              Navigator.of(context).pushReplacementNamed('/login');
-            },
-          ),
-        ],
-      ),
+      // appBar: AppBar(
+      //   automaticallyImplyLeading: false,
+      //   actions: [
+      //     IconButton(
+      //       icon: const Icon(Icons.logout),
+      //       onPressed: () async {
+      //         await _auth.signOut();
+      //         Navigator.of(context).pushReplacementNamed('/login');
+      //       },
+      //     ),
+      //   ],
+      // ),
       body: SingleChildScrollView(
         child: Center(
           child: Column(
@@ -87,26 +86,39 @@ Future<void> _fetchUserData() async {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               const SizedBox(height: 24.0),
-              Text(
-                'My Profile',
-                style: GoogleFonts.nunitoSans(
-                  fontSize: 28.0,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(height: 16.0),
+              // Text(
+              //   'My Profile',
+              //   style: GoogleFonts.nunitoSans(
+              //     fontSize: 28.0,
+              //     fontWeight: FontWeight.w800,
+              //   ),
+              // ),
+              const SizedBox(height: 60.0),
               GestureDetector(
                 onTap: () async {
                   await _pickAndCropImage();
                 },
                 child: Stack(
                   children: [
-                    CircleAvatar(
-                      radius: 50.0,
-                      backgroundImage: _profilePicUrl.isNotEmpty
-                          ? CachedNetworkImageProvider(_profilePicUrl)
-                          : const AssetImage('assets/default_profile_pic.png')
-                              as ImageProvider,
+                    Container(
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.4),
+                            spreadRadius: 0,
+                            blurRadius: 20,
+                            offset: const Offset(
+                                0, 5), // changes position of shadow
+                          ),
+                        ],
+                      ),
+                      child: CircleAvatar(
+                        radius: 50.0,
+                        backgroundImage: _profilePicUrl.isNotEmpty
+                            ? CachedNetworkImageProvider(_profilePicUrl)
+                            : const AssetImage('assets/default_profile_pic.png')
+                                as ImageProvider,
+                      ),
                     ),
                     if (_profilePicUrl.isEmpty)
                       Positioned(
@@ -130,14 +142,34 @@ Future<void> _fetchUserData() async {
               const SizedBox(height: 16.0),
               Column(
                 children: <Widget>[
+                  Row(
+                    mainAxisAlignment:
+                        MainAxisAlignment.center, // Center the badge and text
+                    children: <Widget>[
+                      Container(
+                        width: 10, // Adjust the size of the badge as needed
+                        height: 10,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Color(0xFFFBC32C),
+                        ),
+                      ),
+                      const SizedBox(
+                          width:
+                              5), // Add some spacing between the badge and the text
+                      Text(
+                        "Hostel ID: $_hostelID",
+                        style: GoogleFonts.nunitoSans(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: Color.fromARGB(255, 144, 144, 147)),
+                      ),
+                    ],
+                  ),
                   Text(
                     _fullName.isNotEmpty ? _fullName : 'Name not found',
                     style: GoogleFonts.nunitoSans(
-                        fontSize: 20, fontWeight: FontWeight.w500),
-                  ),
-                  Text(
-                    _hostelID,
-                    style: GoogleFonts.nunitoSans(fontSize: 18),
+                        fontSize: 30, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -150,63 +182,60 @@ Future<void> _fetchUserData() async {
               const SizedBox(height: 30),
               Container(
                 width: 238,
-                height: 100,
+                height: 50, // Adjusted height to match the provided design
                 margin: const EdgeInsets.symmetric(horizontal: 20.0),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFF9EA),
-                  borderRadius: BorderRadius.circular(15.0),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      spreadRadius: 0,
-                      blurRadius: 5,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
+                  color: const Color.fromARGB(255, 254, 231, 196), // Adjusted color to a lighter shade
+                  borderRadius:
+                      BorderRadius.circular(30.0), // More rounded corners
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Stack(
-                    children: [
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: Text(
-                          'Current Diners',
+                child: Center(
+                  // Centered the text vertically and horizontally
+                  child: StreamBuilder<DocumentSnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('scanCounter')
+                        .doc('counterDoc')
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData && snapshot.data != null) {
+                        int counterValue = snapshot.data!['counter'];
+                        return Text(
+                          'Current Diners: $counterValue', // Updated text format
                           style: GoogleFonts.nunitoSans(
-                              fontSize: 16.0, fontWeight: FontWeight.w400),
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.center,
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                              top: 17.0), // Add top padding here
-                          child: StreamBuilder<DocumentSnapshot>(
-                            stream: FirebaseFirestore.instance
-                                .collection('scanCounter')
-                                .doc('counterDoc')
-                                .snapshots(),
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData && snapshot.data != null) {
-                                int counterValue = snapshot.data!['counter'];
-                                return Text(
-                                  '$counterValue/120',
-                                  style: GoogleFonts.nunitoSans(
-                                      fontSize: 25.0,
-                                      fontWeight: FontWeight.bold),
-                                );
-                              } else {
-                                return const Text('Counter data not available');
-                              }
-                            },
+                            fontSize: 20.0, // Increased font size
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black, // Font color set to black
                           ),
-                        ),
-                      ),
-                    ],
+                        );
+                      } else {
+                        return const Text('Counter data not available');
+                      }
+                    },
                   ),
                 ),
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                  onPressed: () async {
+                    await _auth.signOut();
+                    Navigator.of(context).pushReplacementNamed('/login');
+                  },
+                  style: ElevatedButton.styleFrom(
+                    primary: const Color(0xFFFBC32C),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(39.0),
+                    ),
+                    // shadowColor: Colors.black.withOpacity(1.0),
+                    elevation: 0,
+                    minimumSize: const Size(300, 55),
+                  ),
+                  child: Text("Logout",
+                      style: GoogleFonts.nunitoSans(
+                        fontSize: 25,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black,
+                      ))),
+              const SizedBox(height: 20),
             ],
           ),
         ),

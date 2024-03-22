@@ -232,7 +232,7 @@ class _FeePaymentScreenState extends State<FeePaymentScreen> {
                             : const Color(0xFFFBC32C)
                         : Colors.grey,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0),
+                      borderRadius: BorderRadius.circular(39.0),
                     ),
                     shadowColor: Colors.black.withOpacity(1.0),
                     elevation: 4,
