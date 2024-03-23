@@ -229,8 +229,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         return Text(
                           'Current Diners: $counterValue', // Updated text format
                           style: GoogleFonts.nunitoSans(
-                            fontSize: 20.0, // Increased font size
-                            fontWeight: FontWeight.w500,
+                            fontSize: 18.0, // Increased font size
+                            fontWeight: FontWeight.w800,
                             color: Colors.black, // Font color set to black
                           ),
                         );

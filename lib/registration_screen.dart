@@ -1,7 +1,10 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import 'login_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
   @override
@@ -17,8 +20,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _hostelIdController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
 
   bool _isLoading = false;
   bool _isHosteller = false;
@@ -30,7 +33,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     _passwordController.dispose();
     _firstNameController.dispose();
     _lastNameController.dispose();
-    _phoneController.dispose();
+
     _hostelIdController.dispose();
     super.dispose();
   }
@@ -51,7 +54,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         'email': _emailController.text.trim(),
         'firstName': _firstNameController.text.trim(),
         'lastName': _lastNameController.text.trim(),
-        'phone': _phoneController.text.trim(),
+        
         'role': role,
         if (_isHosteller) 'hostelID': _hostelIdController.text.trim(),
       });
@@ -104,172 +107,216 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     );
   }
 
-  Widget _buildTextFormField({
-    required String labelText,
-    required TextEditingController controller,
-    required String? Function(String?) validator,
-    bool obscureText = false,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 20.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            labelText,
-            style: GoogleFonts.nunitoSans(
-              fontWeight: FontWeight.normal,
-              fontSize: 16.0,
-            ),
-          ),
-          TextFormField(
-            controller: controller,
-            style: GoogleFonts.nunitoSans(
-              fontSize: 14.0,
-            ),
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: Colors.grey[200],
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12.0,
-                vertical: 10.0,
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: Colors.transparent),
-                borderRadius: BorderRadius.circular(12.0),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: Colors.transparent),
-                borderRadius: BorderRadius.circular(12.0),
-              ),
-            ),
-            validator: validator,
-            obscureText: obscureText,
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Sign Up',
-          style: TextStyle(
+ Widget _buildTextFormField({
+  required String labelText,
+  required TextEditingController controller,
+  required String? Function(String?) validator,
+  bool obscureText = false,
+}) {
+  return Container(
+    margin: const EdgeInsets.only(bottom: 20.0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          labelText,
+          style: GoogleFonts.nunitoSans(
             fontWeight: FontWeight.normal,
-            fontSize: 24,
-            color: Colors.black,
+            fontSize: 16.0,
           ),
         ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.of(context).pop(),
+        TextFormField(
+          controller: controller,
+          style: GoogleFonts.nunitoSans(
+            fontSize: 14.0,
+          ),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.grey[200],
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12.0,
+              vertical: 10.0,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: const BorderSide(color: Colors.transparent),
+              borderRadius: BorderRadius.circular(12.0),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: const BorderSide(color: Colors.transparent),
+              borderRadius: BorderRadius.circular(12.0),
+            ),
+          ),
+          validator: validator,
+          obscureText: obscureText,
+        ),
+      ],
+    ),
+  );
+}
+
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text(
+        'Sign Up',
+        style: TextStyle(
+          fontWeight: FontWeight.normal,
+          fontSize: 24,
+          color: Colors.black,
         ),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildTextFormField(
-                      labelText: 'First Name',
-                      controller: _firstNameController,
-                      validator: (value) =>
-                          value!.isEmpty ? 'Enter your first name' : null,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back, color: Colors.black),
+        onPressed: () => Navigator.of(context).pop(),
+      ),
+    ),
+    body: _isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildTextFormField(
+                    labelText: 'First Name',
+                    controller: _firstNameController,
+                    validator: (value) =>
+                        value!.isEmpty ? 'Enter your first name' : null,
+                  ),
+                  _buildTextFormField(
+                    labelText: 'Last Name',
+                    controller: _lastNameController,
+                    validator: (value) =>
+                        value!.isEmpty ? 'Enter your last name' : null,
+                  ),
+                  
+                  _buildTextFormField(
+                    labelText: 'E-Mail ID',
+                    controller: _emailController,
+                    validator: (value) =>
+                        !value!.contains('@') ? 'Enter a valid email' : null,
+                  ),
+                  _buildTextFormField(
+                    labelText: 'Password',
+                    controller: _passwordController,
+                    validator: (value) => value!.length < 6
+                        ? 'Password must be 6+ characters'
+                        : null,
+                    obscureText: true,
+                  ),
+                  _buildTextFormField(
+                    labelText: 'Confirm Password',
+                    controller: _confirmPasswordController,
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Please confirm your password';
+                      }
+                      if (value != _passwordController.text) {
+                        return 'Passwords do not match';
+                      }
+                      return null;
+                    },
+                    obscureText: true,
+                  ),
+                  _buildCustomCheckbox(
+                    value: _isHosteller,
+                    onChanged: (value) {
+                      setState(() {
+                        _isHosteller = value;
+                        _isNonHosteller = !_isHosteller;
+                      });
+                    },
+                    label: 'Hosteller',
+                  ),
+                  if (_isHosteller)
+                    Container(
+                      margin: EdgeInsets.only(
+                          top: 16.0), // Add margin to create space
+                      child: _buildTextFormField(
+                        labelText: 'Hostel ID',
+                        controller: _hostelIdController,
+                        validator: (value) =>
+                            value!.isEmpty ? 'Enter your hostel ID' : null,
+                      ),
                     ),
-                    _buildTextFormField(
-                      labelText: 'Last Name',
-                      controller: _lastNameController,
-                      validator: (value) =>
-                          value!.isEmpty ? 'Enter your last name' : null,
+                  const SizedBox(height: 20),
+                  _buildCustomCheckbox(
+                    value: _isNonHosteller,
+                    onChanged: (value) {
+                      setState(() {
+                        _isNonHosteller = value;
+                        _isHosteller = !_isNonHosteller;
+                      });
+                    },
+                    label: 'Non-Hosteller',
+                  ),
+                  const SizedBox(height: 30),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      primary: const Color(0xFFFBC32C),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(39),
+                      ),
+                      elevation: 0,
+                      minimumSize: const Size(double.infinity, 50),
                     ),
-                    _buildTextFormField(
-                      labelText: 'Phone Number',
-                      controller: _phoneController,
-                      validator: (value) =>
-                          value!.isEmpty ? 'Enter your phone number' : null,
-                    ),
-                    _buildTextFormField(
-                      labelText: 'E-Mail ID',
-                      controller: _emailController,
-                      validator: (value) =>
-                          !value!.contains('@') ? 'Enter a valid email' : null,
-                    ),
-                    _buildTextFormField(
-                      labelText: 'Password',
-                      controller: _passwordController,
-                      validator: (value) => value!.length < 6
-                          ? 'Password must be 6+ characters'
-                          : null,
-                      obscureText: true,
-                    ),
-                    _buildCustomCheckbox(
-                      value: _isHosteller,
-                      onChanged: (value) {
-                        setState(() {
-                          _isHosteller = value;
-                          _isNonHosteller = !_isHosteller;
-                        });
-                      },
-                      label: 'Hosteller',
-                    ),
-                    if (_isHosteller)
-                      Container(
-                        margin: EdgeInsets.only(
-                            top: 16.0), // Add margin to create space
-                        child: _buildTextFormField(
-                          labelText: 'Hostel ID',
-                          controller: _hostelIdController,
-                          validator: (value) =>
-                              value!.isEmpty ? 'Enter your hostel ID' : null,
+                    onPressed: _register,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                      child: Text(
+                        'Sign Up',
+                        style: GoogleFonts.nunitoSans(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
                         ),
                       ),
-                    const SizedBox(height: 20),
-                    _buildCustomCheckbox(
-                      value: _isNonHosteller,
-                      onChanged: (value) {
-                        setState(() {
-                          _isNonHosteller = value;
-                          _isHosteller = !_isNonHosteller;
-                        });
-                      },
-                      label: 'Non-Hosteller',
                     ),
-                    const SizedBox(height: 30),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        primary: const Color(0xFFFBC32C),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(39),
-                        ),
-                        elevation: 0,
-                        minimumSize: const Size(double.infinity, 50),
+                  ),
+                  const SizedBox(height: 20,),
+                  Center(
+                    child: RichText(
+                    textAlign: TextAlign.center,
+                    text: TextSpan(
+                      style: GoogleFonts.inter(
+                        color: const Color.fromARGB(255, 134, 134, 134),
+                        fontSize: 14,
                       ),
-                      onPressed: _register,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 12.0),
-                        child: Text(
-                          'Sign Up',
-                          style: GoogleFonts.nunitoSans(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white,
+                      children: [
+                        const TextSpan(
+                          text: 'Already have an account? ',
+                        ),
+                        TextSpan(
+                          text: 'Sign in',
+                          style: GoogleFonts.inter(
+                            color: const Color(0xFFFBC32C),
+                            fontSize: 14,
+                            fontWeight: FontWeight.normal,
+                             // Optional: to underline 'Sign in'
                           ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              // Navigate to LoginScreen when 'Sign in' is tapped
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const LoginScreen()),
+                              );
+                            },
                         ),
-                      ),
+                      ],
                     ),
-                  ],
-                ),
+                                    ),
+                  ),
+                ],
               ),
             ),
-    );
-  }
+          ),
+  );
+}
 }
