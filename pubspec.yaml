@@ -123,6 +123,7 @@ flutter:
     - assets/background_image.png
     - assets/loginbg.png
     - assets/loginbglogo.png
+    - assets/splash.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

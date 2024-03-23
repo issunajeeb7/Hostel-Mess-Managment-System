@@ -11,6 +11,7 @@ import 'profile_screen.dart';
 import 'package:flutter/services.dart';
 import 'first_page.dart';
 import 'firebase_service.dart';
+import 'dart:async';
 // Make sure you have created this file
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
@@ -41,7 +42,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const LandingPage(),
+      home:  SplashPage(),
       routes: {
         '/login': (context) => const LoginScreen(),
         '/register': (context) => RegistrationScreen(),
@@ -49,6 +50,38 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+
+
+class SplashPage extends StatefulWidget {
+  @override
+  _SplashPageState createState() => _SplashPageState();
+}
+
+class _SplashPageState extends State<SplashPage> {
+  @override
+  void initState() {
+    super.initState();
+    Timer(Duration(seconds: 2), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LandingPage()),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        
+        Image.asset('assets/splash.png', fit: BoxFit.cover),
+      ],
+    );
+  }
+}
+
 
 class LandingPage extends StatelessWidget {
   const LandingPage({Key? key}) : super(key: key);
