@@ -235,7 +235,7 @@ Widget build(BuildContext context) {
                   ),
                   if (_isHosteller)
                     Container(
-                      margin: EdgeInsets.only(
+                      margin: const EdgeInsets.only(
                           top: 16.0), // Add margin to create space
                       child: _buildTextFormField(
                         labelText: 'Hostel ID',

@@ -105,7 +105,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       style: GoogleFonts.nunitoSans(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFFFBC32C),
+                        color: const Color(0xFFFBC32C),
                       ),
                     ),
                   ),
@@ -188,7 +188,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         style: GoogleFonts.nunitoSans(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
-                            color: Color.fromARGB(255, 144, 144, 147)),
+                            color: const Color.fromARGB(255, 144, 144, 147)),
                       ),
                     ],
                   ),

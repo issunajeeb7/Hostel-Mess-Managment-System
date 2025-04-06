@@ -62,13 +62,13 @@ class _AdminFeeStatusScreenState extends State<AdminFeeStatusScreen> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center, // Add this line
                 children: [
-                  SizedBox(width: 20.0), // Padding left for the icon
+                  const SizedBox(width: 20.0), // Padding left for the icon
                   Image.asset(
                     'assets/search.png',
                     width: 24.0, // Icon width
                     height: 24.0, // Icon height
                   ),
-                  SizedBox(
+                  const SizedBox(
                       width: 10.0), // Space between the icon and the text field
                   Expanded(
                     child: TextFormField(
@@ -147,7 +147,7 @@ class _AdminFeeStatusScreenState extends State<AdminFeeStatusScreen> {
                                 'OOPS!',
                                 style: GoogleFonts.nunitoSans(
                                   fontSize: 40,
-                                  color: Color(0xFFFBC32C),
+                                  color: const Color(0xFFFBC32C),
                                   fontWeight: FontWeight.w800,
                                 ),
                               ),
@@ -155,7 +155,7 @@ class _AdminFeeStatusScreenState extends State<AdminFeeStatusScreen> {
                                 'No results found, try searching again.',
                                 style: GoogleFonts.nunitoSans(
                                   fontSize: 16,
-                                  color: Color.fromARGB(255, 63, 63, 63),
+                                  color: const Color.fromARGB(255, 63, 63, 63),
                                 ),
                               ),
                             ],
@@ -172,7 +172,7 @@ class _AdminFeeStatusScreenState extends State<AdminFeeStatusScreen> {
                               margin:
                                   const EdgeInsets.symmetric(horizontal: 16),
                               decoration: BoxDecoration(
-                                color: Color.fromARGB(45, 251, 196, 44),
+                                color: const Color.fromARGB(45, 251, 196, 44),
                                 borderRadius: BorderRadius.circular(14),
                               ),
                               child: ListTile(

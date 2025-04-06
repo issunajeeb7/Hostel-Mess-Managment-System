@@ -36,7 +36,7 @@ class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
   // Create a function to load icons from assets based on user role
   Widget _loadIcon(String iconName, bool isSelected) {
-    final iconSize = 30.0;
+    const iconSize = 30.0;
     return Image.asset(
       'assets/$iconName${isSelected ? '' : '_outlined'}.png',
       width: iconSize,

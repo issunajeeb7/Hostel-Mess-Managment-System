@@ -14,7 +14,7 @@ class AdminHomeScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Current Diners'),
+        title: const Text('Current Diners'),
       ),
       body: Center(
         child: Column(
@@ -87,7 +87,7 @@ class AdminHomeScreen extends StatelessWidget {
                     .doc('counterDoc')
                     .update({'counter': 0});
               },
-              child: Text('Reset Counter'),
+              child: const Text('Reset Counter'),
             ),
             const SizedBox(height: 10), // Add some space
             ElevatedButton(
@@ -98,7 +98,7 @@ class AdminHomeScreen extends StatelessWidget {
                       builder: (context) => const AdminPollResultScreen()),
                 );
               },
-              child: Text('View Poll Results'),
+              child: const Text('View Poll Results'),
             ),
           ],
         ),

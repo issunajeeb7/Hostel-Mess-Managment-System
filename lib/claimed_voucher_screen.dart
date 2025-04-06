@@ -29,14 +29,14 @@ class _ClaimedVoucherState extends State<ClaimedVoucher> {
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
+            return const Center(
               child: CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFBC32C)),
               ),
             );
           }
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return Center(child: Text('No claimed vouchers found'));
+            return const Center(child: Text('No claimed vouchers found'));
           }
 
           return Padding(
@@ -73,7 +73,7 @@ class _ClaimedVoucherState extends State<ClaimedVoucher> {
       future: _getMealType(transactionData['voucherID']),
       builder: (context, mealTypeSnapshot) {
         if (mealTypeSnapshot.connectionState == ConnectionState.waiting) {
-          return Center(
+          return const Center(
             child: CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFBC32C)),
             ),

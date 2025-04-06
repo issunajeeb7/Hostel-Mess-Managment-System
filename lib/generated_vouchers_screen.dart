@@ -184,7 +184,7 @@ class VoucherListItem extends StatelessWidget {
             child: Text(
               'Hostel ID: $hostelID',
               style: GoogleFonts.nunitoSans(
-                color: Color.fromARGB(255, 255, 255, 255),
+                color: const Color.fromARGB(255, 255, 255, 255),
               ),
             ),
           ),
@@ -194,7 +194,7 @@ class VoucherListItem extends StatelessWidget {
             child: Text(
               'Meal Type: ${voucher['mealType']}',
               style: GoogleFonts.nunitoSans(
-                color: Color.fromARGB(255, 255, 255, 255),
+                color: const Color.fromARGB(255, 255, 255, 255),
               ),
             ),
           ),
@@ -204,7 +204,7 @@ class VoucherListItem extends StatelessWidget {
             child: Text(
               'Time: ${getTimeForMealType(voucher['mealType'])}',
               style: GoogleFonts.nunitoSans(
-                color: Color.fromARGB(255, 255, 255, 255),
+                color: const Color.fromARGB(255, 255, 255, 255),
               ),
             ),
           ),
@@ -214,7 +214,7 @@ class VoucherListItem extends StatelessWidget {
             child: Text(
               'Price: ₹ 30.00',
               style: GoogleFonts.nunitoSans(
-                color: Color.fromARGB(255, 255, 255, 255),
+                color: const Color.fromARGB(255, 255, 255, 255),
               ),
             ),
           ),
@@ -224,7 +224,7 @@ class VoucherListItem extends StatelessWidget {
             child: Text(
               voucher['isClaimed'] ? 'Claimed' : 'Listed',
               style: GoogleFonts.nunitoSans(
-                color: Color.fromARGB(255, 255, 255, 255),
+                color: const Color.fromARGB(255, 255, 255, 255),
                 fontWeight: FontWeight.bold,
               ),
             ),

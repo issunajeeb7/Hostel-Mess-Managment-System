@@ -60,7 +60,7 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
             child: Theme(
               data: Theme.of(context).copyWith(splashColor: Colors.transparent),
               child: TextButton(
-                style: ButtonStyle(overlayColor: MaterialStateProperty.all(Color.fromARGB(4, 0, 0, 0))),
+                style: ButtonStyle(overlayColor: MaterialStateProperty.all(const Color.fromARGB(4, 0, 0, 0))),
                 onPressed: () {
                   if (_currentPageIndex > 0) {  
                     _pageController.previousPage(
@@ -69,9 +69,9 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
                     );
                   } else {
                     Navigator.of(context).pushReplacement(PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) => FirstPage(),
+                      pageBuilder: (context, animation, secondaryAnimation) => const FirstPage(),
                       transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                        var begin = Offset(0.0, -1.0);
+                        var begin = const Offset(0.0, -1.0);
                         var end = Offset.zero;
                         var curve = Curves.ease;
 
@@ -88,7 +88,7 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
                 },
                 child: Text(
                   'Back',
-                  style: GoogleFonts.inter(fontSize: 15,color: Color(0xFFFBC32C),fontWeight: FontWeight.normal),
+                  style: GoogleFonts.inter(fontSize: 15,color: const Color(0xFFFBC32C),fontWeight: FontWeight.normal),
                 ),
               ),
             ),
@@ -100,7 +100,7 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
               child: Theme(
                 data: Theme.of(context).copyWith(splashColor: Colors.transparent),
                 child: TextButton(
-                  style: ButtonStyle(overlayColor: MaterialStateProperty.all(Color.fromARGB(4, 0, 0, 0))),
+                  style: ButtonStyle(overlayColor: MaterialStateProperty.all(const Color.fromARGB(4, 0, 0, 0))),
                   onPressed: () {
                     if (_currentPageIndex < onboardingData.length - 1) {
                       _pageController.nextPage(
@@ -111,7 +111,7 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
                   },
                   child: Text(
                     'Next',
-                    style: GoogleFonts.inter(fontSize: 15,color: Color(0xFFFBC32C),fontWeight: FontWeight.w500),
+                    style: GoogleFonts.inter(fontSize: 15,color: const Color(0xFFFBC32C),fontWeight: FontWeight.w500),
                   ),
                 ),
               ),

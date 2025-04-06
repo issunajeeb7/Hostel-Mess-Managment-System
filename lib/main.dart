@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
+import 'changenotifier.dart';
 import 'firebase_options.dart';
 import 'login_screen.dart';
 import 'registration_screen.dart';
@@ -12,6 +14,7 @@ import 'package:flutter/services.dart';
 import 'first_page.dart';
 import 'firebase_service.dart';
 import 'dart:async';
+
 // Make sure you have created this file
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
@@ -20,9 +23,14 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.android,
   );
-  
-  runApp(const MyApp());
-   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => ScanCounter(),
+      child: const MyApp(),
+    ),
+  );
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     systemNavigationBarColor: Colors.transparent, // Set the desired color here
   ));
 }
@@ -32,8 +40,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //  final firebaseService = FirebaseService();
-    // firebaseService.listenToScanCounterChanges();
+    final firebaseService = FirebaseService();
+    firebaseService.listenToScanCounterChanges(context);
     return MaterialApp(
       navigatorObservers: [routeObserver],
       debugShowCheckedModeBanner: false,
@@ -42,7 +50,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home:  SplashPage(),
+      home: SplashPage(),
       routes: {
         '/login': (context) => const LoginScreen(),
         '/register': (context) => RegistrationScreen(),
@@ -50,8 +58,6 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-
 
 class SplashPage extends StatefulWidget {
   @override
@@ -62,10 +68,10 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
-    Timer(Duration(seconds: 2), () {
+    Timer(const Duration(seconds: 2), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => LandingPage()),
+        MaterialPageRoute(builder: (context) => const LandingPage()),
       );
     });
   }
@@ -75,13 +81,11 @@ class _SplashPageState extends State<SplashPage> {
     return Stack(
       fit: StackFit.expand,
       children: [
-        
         Image.asset('assets/splash.png', fit: BoxFit.cover),
       ],
     );
   }
 }
-
 
 class LandingPage extends StatelessWidget {
   const LandingPage({Key? key}) : super(key: key);

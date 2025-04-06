@@ -159,7 +159,7 @@ Widget build(BuildContext context) {
             autoMarkAttendance = true;
 
             // Automatically mark attendance after 2 seconds (adjust as needed)
-            Timer(Duration(seconds: 2), () {
+            Timer(const Duration(seconds: 2), () {
               if (mounted) {
                 _markAttendance();
                 autoMarkAttendance = false;
@@ -169,7 +169,7 @@ Widget build(BuildContext context) {
 
           if (controller != null) {
             controller.pauseCamera();
-            Future.delayed(Duration(milliseconds: 500), () {
+            Future.delayed(const Duration(milliseconds: 500), () {
               controller.resumeCamera();
             });
           }
@@ -247,7 +247,7 @@ Widget build(BuildContext context) {
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Voucher marked as used.'),
           ),
         );
@@ -310,11 +310,11 @@ Widget build(BuildContext context) {
       Container(
         padding: const EdgeInsets.symmetric(horizontal: 60.0, vertical: 8.0),
         decoration: BoxDecoration(
-          color: Color(0xFFFBC32C), // Adjust the background color as needed
+          color: const Color(0xFFFBC32C), // Adjust the background color as needed
           borderRadius: BorderRadius.circular(30.0), // Rounded corners
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(
-              color: const Color.fromARGB(66, 59, 57, 57),
+              color: Color.fromARGB(66, 59, 57, 57),
               blurRadius: 4,
               offset: Offset(0, 2), // Shadow position
             ),
@@ -322,7 +322,7 @@ Widget build(BuildContext context) {
         ),
         child: Text(
           'Current Diners: $counter',
-          style: GoogleFonts.nunitoSans(color: Color.fromARGB(255, 0, 0, 0),fontSize: 16)
+          style: GoogleFonts.nunitoSans(color: const Color.fromARGB(255, 0, 0, 0),fontSize: 16)
         ),
       ),
       TextButton(
@@ -331,7 +331,7 @@ Widget build(BuildContext context) {
           _resetCounter();
         },
         child: Text('Reset Counter',
-        style: GoogleFonts.nunitoSans(color:Color(0xFFFBC32C) ),
+        style: GoogleFonts.nunitoSans(color:const Color(0xFFFBC32C) ),
         ),
       ),
     ],
@@ -384,7 +384,7 @@ class ScannerOverlayShape extends CustomPainter {
               center: Offset(width / 2, height / 2),
               width: borderSize,
               height: borderSize),
-          Radius.circular(borderRadius)))
+          const Radius.circular(borderRadius)))
       ..fillType = PathFillType.evenOdd;
 
     // Combine paths to create a dimmed area around the clear path
