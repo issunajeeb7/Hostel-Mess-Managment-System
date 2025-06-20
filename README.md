@@ -1,6 +1,5 @@
-Certainly! Below is a sample `README.md` that you can use for your entire project on GitHub. It provides an overview of the project, instructions on how to get started, and other relevant information. Make sure to customize the placeholder text to fit the details of your project.
 
-```markdown
+``markdown
 # Hostel Management System
 
 Welcome to the Hostel Management System, a comprehensive solution for managing hostel operations, fee payments, meal vouchers, and attendance marking, built with Flutter and Firebase.
